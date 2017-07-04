@@ -37,6 +37,8 @@ public:
 private:
 	void deleteDeadFires();
 	void resetBurnedArea();
+	void resetFirePotential();
+	
     
     std::shared_ptr<KinectProjector> kinectProjector;
     
@@ -45,8 +47,9 @@ private:
     // Fire
     vector<Fire> fires;
     vector< vector<bool> > burnedArea;
+	vector< vector<int> > firePotential;
 	float temperature;
 	float windspeed;
 	float winddirection;
-    
+	int randFirePotential;
 };

@@ -77,31 +77,43 @@ void Model::update(){
         resetBurnedArea();
     }
     
-	
-    
     //spread fires
+	int spreadFactor;
     int size = fires.size();
     for (int i = 0; i < size ; i++){
         ofPoint location = fires[i].getLocation();
-        if (burnedArea[floor(location.x)][floor(location.y)]){
-            fires[i].kill();
-        } else {
-            burnedArea[floor(location.x)][floor(location.y)] = true;
-        }
-        
-        int rand = std::rand() % 100;
-		int spreadFactor = 10;
-		if (temperature > 30) {
+		if ((firePotential[floor(location.x)][floor(location.y)]) == 0) {
+			fires[i].kill();
+		}
+        if ((firePotential[floor(location.x)][floor(location.y)]) <= 10){
+			firePotential[floor(location.x)][floor(location.y)] = 0;
+			spreadFactor = 10;
+        } 
+		if ((firePotential[floor(location.x)][floor(location.y)]) <= 20) {
+			firePotential[floor(location.x)][floor(location.y)] = 0;
 			spreadFactor = 20;
 		}
-		else if (temperature < 10) {
-			spreadFactor = 5;
+		if ((firePotential[floor(location.x)][floor(location.y)]) <= 30) {
+			firePotential[floor(location.x)][floor(location.y)] = 0;
+			spreadFactor = 30;
 		}
-        if (fires[i].isAlive() && rand < spreadFactor){
-            int angle = fires[i].getAngle();
-            addNewFire(location, (angle + 90)%360);
-            addNewFire(location, (angle + 270)%360);
-        }
+		if ((firePotential[floor(location.x)][floor(location.y)]) <= 40) {
+			firePotential[floor(location.x)][floor(location.y)] = 0;
+			spreadFactor = 40;
+		}
+		else {
+			firePotential[floor(location.x)][floor(location.y)] = 0;
+			spreadFactor = 50;
+		}		
+        
+        int rand = std::rand() % 100;
+		
+		if (fires[i].isAlive() && rand > spreadFactor) {
+			int angle = fires[i].getAngle();
+			addNewFire(location, (angle + 90) % 360);
+			addNewFire(location, (angle + 270) % 360);
+		}
+
     }
 	deleteDeadFires();
     for (auto & f : fires){
@@ -144,5 +156,17 @@ void Model::resetBurnedArea(){
         }
         burnedArea.push_back(row);
     }
+}
+
+void Model::resetFirePotential() {
+	randFirePotential = std::rand() % 50;
+	firePotential.clear();
+	for (int x = 0; x <= kinectROI.getRight(); x++) {
+		vector<int> row;
+		for (int y = 0; y <= kinectROI.getBottom(); y++){
+			row.push_back(rand);
+		}
+		firePotential.push_back(row);
+	}
 }
 

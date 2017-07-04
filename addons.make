@@ -1,5 +1,5 @@
-ofxDatGui
 ofxCv
+ofxDatGui
 ofxKinect
 ofxModal
 ofxOpenCv
