@@ -80,11 +80,14 @@ void Model::update(){
     //spread fires
     int size = fires.size();
     int i = 0;
-    while(i < size){
+    while (i < size){
         ofPoint location = fires[i].getLocation();
-        if (burnedArea[floor(location.x)][floor(location.y)] || !fires[i].isAlive()){
+        if (!fires[i].isAlive()){
             fires.erase(fires.begin() + i);
             size--;
+            continue;
+        } else if (burnedArea[floor(location.x)][floor(location.y)]) {
+            fires[i].kill();
         } else {
             burnedArea[floor(location.x)][floor(location.y)] = true;
             int rand = std::rand() % 100;
@@ -99,8 +102,8 @@ void Model::update(){
                 addNewFire(location, (angle + 90)%360);
                 addNewFire(location, (angle + 270)%360);
             }
-            i++;
         }
+        i++;
     }
     
     for (auto & f : fires){
@@ -112,7 +115,7 @@ void Model::update(){
 }
 
 void Model::draw(){
-    drawBurnedArea();
+    //drawBurnedArea();
     for (auto & f : fires){
         f.draw();
     }

@@ -98,7 +98,6 @@ void ofApp::drawProjWindow(ofEventArgs &args) {
 void ofApp::drawVehicles()
 {
     fboVehicles.begin();
-    ofClear(255,255,255, 0);
     model->draw();
     fboVehicles.end();
 }
