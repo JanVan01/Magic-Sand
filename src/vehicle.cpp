@@ -53,6 +53,11 @@ void Vehicle::updateBeachDetection(){
     }
 }
 
+ofPoint Vehicle::angleToVector(float angle){
+    float radian = ofDegToRad(angle);
+    return ofVec2f(cos(radian), sin(radian));
+}
+
 ofPoint Vehicle::bordersEffect(){
     ofPoint desired, futureLocation;
     
@@ -153,8 +158,7 @@ ofPoint Vehicle::windEffect(float windspeed, float winddirection) {
 		windForce = 0;
 	}
 
-	float windDir = ofDegToRad(winddirection);
-	ofPoint desired = ofVec2f(cos(windDir), sin(windDir));
+    ofPoint desired = angleToVector(winddirection);
 	desired.normalize();
 	desired *= windForce;
 
@@ -227,8 +231,7 @@ ofPoint Fire::wanderEffect(){
     
     wandertheta = ofRandom(-change,change);     // Randomly change wander theta
     
-    float currDir = ofDegToRad(angle);
-    ofPoint front = ofVec2f(cos(currDir), sin(currDir));
+    ofPoint front = angleToVector(angle);
     
     front.normalize();
     front *= wanderD;
@@ -236,7 +239,7 @@ ofPoint Fire::wanderEffect(){
     
    // float h = ofradtodeg(atan2(front.x,front.y));
   	//float h = front.angle(ofvec2f(1,0)); // we need to know the heading to offset wandertheta
-    
+    float currDir = ofDegToRad(angle);
     ofPoint circleOffSet = ofPoint(wanderR*cos(wandertheta+currDir),wanderR*sin(wandertheta+currDir));
     ofPoint target = circleloc + circleOffSet;
     
@@ -257,47 +260,32 @@ void Fire::applyBehaviours() {
 void Fire::applyBehaviours(float temp, float windspeed, float winddirection) {
     updateBeachDetection();
     
-	windF = windEffect(windspeed, winddirection);
-    bordersF = bordersEffect();
-    slopesF = slopesEffect();
-    wanderF = wanderEffect();
-	hillF = hillEffect();
+    ofVec2f wanderF = wanderEffect();
+    ofVec2f hillF = hillEffect();
+    ofVec2f windF = windEffect(windspeed, winddirection);
     
-    ofPoint littleSlopeF = slopesF;
-    
-
-    bordersF *=0.5;
-    slopesF *= 2;//2;
-    wanderF *= 1;// Used to introduce some randomness in the direction changes
-    littleSlopeF *= 1;
-    
-    float currDir = ofDegToRad(angle);
-    ofPoint oldDir = ofVec2f(cos(currDir), sin(currDir));
+    ofPoint oldDir = angleToVector(angle);
     oldDir.scale(velocityIncreaseStep);
 	ofPoint newDir;
 	newDir += wanderF;
 	newDir += hillF;
 	newDir += windF;
-
     
 	if (beach)
         oldDir.scale(velocityIncreaseStep/beachDist);
-
-	if (!beach && !border)
-		{   
+	if (!beach && !border){
 		applyVelocityChange(newDir);
 		applyVelocityChange(oldDir); // Just accelerate
-		} else { // Wee need to decelerate and then change direction
-		    if (velocity.lengthSquared() > minVelocity*minVelocity) // We are not stopped yet
-		    {
+    } else { // We need to decelerate and then change direction
+        if (velocity.lengthSquared() > minVelocity*minVelocity){ // We are not stopped yet
 		        applyVelocityChange(-oldDir); // Just deccelerate
 				applyVelocityChange(-newDir);
-		    }  else {
-				// Stops the Fire agent
-				velocity = ofPoint(0);
-				alive = false;
-			}
-		}
+        }  else {
+            // Stops the Fire agent
+            velocity = ofPoint(0);
+            alive = false;
+        }
+    }
 }
 
 void Fire::draw(){
@@ -333,7 +321,13 @@ void Fire::kill(){
 }
 
 ofColor Fire::getFlameColor(){
-    float intensityFactor = intensity <= 0 ? 0 : intensity*0.33;
+    float intensityFactor;
+    if (intensity <= 0){
+        intensityFactor = 0;
+    } else {
+        intensityFactor = intensity * 0.33;
+    }
+
     int red = 255 * intensityFactor;
     int green = 64 * intensityFactor;
     int blue = 0 * intensityFactor;
