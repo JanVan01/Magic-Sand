@@ -252,9 +252,10 @@ ofPoint Fire::wanderEffect(){
     
     return velocityChange;
 }
-// Forces : seekF, bordersF, slopesF, wanderF, ==> Temp, Wind, Humid, ... hier mögl.
-void Fire::applyBehaviours() {
 
+void Fire::applyBehaviours() {
+    // call applyBehaviour with default values
+    applyBehaviours(20,0,0);
 }
 
 void Fire::applyBehaviours(float temp, float windspeed, float winddirection) {
@@ -271,8 +272,10 @@ void Fire::applyBehaviours(float temp, float windspeed, float winddirection) {
 	newDir += hillF;
 	newDir += windF;
     
-	if (beach)
+    if (beach) {
         oldDir.scale(velocityIncreaseStep/beachDist);
+    }
+    
 	if (!beach && !border){
 		applyVelocityChange(newDir);
 		applyVelocityChange(oldDir); // Just accelerate
