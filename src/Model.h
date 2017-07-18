@@ -36,8 +36,8 @@ public:
     
 private:
 	void deleteDeadFires();
-	void resetBurnedArea();
 	void resetFirePotential();
+	void spreadTrees();
 	
     
     std::shared_ptr<KinectProjector> kinectProjector;
@@ -51,5 +51,4 @@ private:
 	float temperature;
 	float windspeed;
 	float winddirection;
-	int randFirePotential;
 };

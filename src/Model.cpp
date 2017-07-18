@@ -14,7 +14,7 @@ Model::Model(std::shared_ptr<KinectProjector> const& k){
     
     // Retrieve variables
     kinectROI = kinectProjector->getKinectROI();
-    resetBurnedArea();
+    resetFirePotential();
 
 }
 
@@ -36,25 +36,25 @@ void Model::addNewFire(ofVec2f fireSpawnPos, float angle){
     }
     auto f = Fire(kinectProjector, fireSpawnPos, kinectROI, angle);
     f.setup();
-    fires.push_back(f);
+fires.push_back(f);
 
 }
 
-bool Model::setRandomVehicleLocation(ofRectangle area, bool liveInWater, ofVec2f & location){
-    bool okwater = false;
-    int count = 0;
-    int maxCount = 100;
-    while (!okwater && count < maxCount) {
-        count++;
-        float x = ofRandom(area.getLeft(),area.getRight());
-        float y = ofRandom(area.getTop(),area.getBottom());
-        bool insideWater = kinectProjector->elevationAtKinectCoord(x, y) < 0;
-        if ((insideWater && liveInWater) || (!insideWater && !liveInWater)){
-            location = ofVec2f(x, y);
-            okwater = true;
-        }
-    }
-    return okwater;
+bool Model::setRandomVehicleLocation(ofRectangle area, bool liveInWater, ofVec2f & location) {
+	bool okwater = false;
+	int count = 0;
+	int maxCount = 100;
+	while (!okwater && count < maxCount) {
+		count++;
+		float x = ofRandom(area.getLeft(), area.getRight());
+		float y = ofRandom(area.getTop(), area.getBottom());
+		bool insideWater = kinectProjector->elevationAtKinectCoord(x, y) < 0;
+		if ((insideWater && liveInWater) || (!insideWater && !liveInWater)) {
+			location = ofVec2f(x, y);
+			okwater = true;
+		}
+	}
+	return okwater;
 }
 
 // SETTERS and GETTERS Fire Parameters:
@@ -70,74 +70,70 @@ void Model::setWinddirection(float uiWinddirection) {
 	winddirection = uiWinddirection;
 }
 
-void Model::update(){
-    // kinectROI updated
-    if (kinectProjector->getKinectROI() != kinectROI){
-        kinectROI = kinectProjector->getKinectROI();
-        resetBurnedArea();
-    }
-    
-    //spread fires
-	int spreadFactor;
-    int size = fires.size();
-    for (int i = 0; i < size ; i++){
-        ofPoint location = fires[i].getLocation();
+void Model::update() {
+	// kinectROI updated
+	if (kinectProjector->getKinectROI() != kinectROI) {
+		kinectROI = kinectProjector->getKinectROI();
+		resetFirePotential();
+	}
+
+	//spread trees
+	int size = fires.size();
+	for (int i = 0; i < size; i++) {
+		int spreadFactor = 0;
+		ofPoint location = fires[i].getLocation();
+		// if firePotential is larger than 40 (= tree), all four positions around should get similar values
+		if (firePotential[floor(location.x)][floor(location.y)] >= 40) {
+			firePotential[floor(location.x + 1)][floor(location.y)] = (firePotential[floor(location.x)][floor(location.y)] - 3);
+			firePotential[floor(location.x + 1)][floor(location.y + 1)] = (firePotential[floor(location.x)][floor(location.y)] - 3);
+			firePotential[floor(location.x)][floor(location.y + 1)] = (firePotential[floor(location.x)][floor(location.y)] - 3);
+			firePotential[floor(location.x + 1)][floor(location.y + 1)] = (firePotential[floor(location.x)][floor(location.y)] - 3);
+			
+		}
+		// kill fires where no firePotential is left
 		if ((firePotential[floor(location.x)][floor(location.y)]) == 0) {
 			fires[i].kill();
 		}
-        if ((firePotential[floor(location.x)][floor(location.y)]) <= 10){
-			firePotential[floor(location.x)][floor(location.y)] = 0;
-			spreadFactor = 10;
-        } 
-		if ((firePotential[floor(location.x)][floor(location.y)]) <= 20) {
-			firePotential[floor(location.x)][floor(location.y)] = 0;
-			spreadFactor = 20;
-		}
-		if ((firePotential[floor(location.x)][floor(location.y)]) <= 30) {
-			firePotential[floor(location.x)][floor(location.y)] = 0;
-			spreadFactor = 30;
-		}
-		if ((firePotential[floor(location.x)][floor(location.y)]) <= 40) {
-			firePotential[floor(location.x)][floor(location.y)] = 0;
-			spreadFactor = 40;
-		}
+		// set propability for new fires to firePotential 
+		// st firePotential to zero afterwards
 		else {
+			spreadFactor = firePotential[floor(location.x)][floor(location.y)];
 			firePotential[floor(location.x)][floor(location.y)] = 0;
-			spreadFactor = 50;
-		}		
-        
-        int rand = std::rand() % 100;
-		
-		if (fires[i].isAlive() && rand > spreadFactor) {
+		}
+
+		int rand = std::rand() % 50;
+
+		// set new fires with propability depending on spreadFactor 
+		if (fires[i].isAlive() && rand <= spreadFactor) {
 			int angle = fires[i].getAngle();
 			addNewFire(location, (angle + 90) % 360);
 			addNewFire(location, (angle + 270) % 360);
 		}
+	}
 
-    }
 	deleteDeadFires();
-    for (auto & f : fires){
-        if(f.isAlive()){
-            f.applyBehaviours(temperature,windspeed,winddirection);
-            f.update();
-        }
-    }
+	for (auto & f : fires) {
+		if (f.isAlive()) {
+			f.applyBehaviours(temperature, windspeed, winddirection);
+			f.update();
+		}
+	}
 }
 
-void Model::draw(){
-    for (auto & f : fires){
-        f.draw();
-    }
+void Model::draw() {
+	for (auto & f : fires) {
+		f.draw();
+	}
 }
 
-void Model::clear(){
-    fires.clear();
-    resetBurnedArea();
+void Model::clear() {
+	fires.clear();
+	resetFirePotential();
 }
 
 void Model::deleteDeadFires() {
 	vector<int> deadFires;
-	
+
 	for (int i = 0; i < fires.size(); i++) {
 		if (!fires[i].isAlive()) {
 			deadFires.push_back(i);
@@ -147,26 +143,25 @@ void Model::deleteDeadFires() {
 		fires.erase(fires.begin() + (deadFires[i] - i));
 	}
 }
-void Model::resetBurnedArea(){
-    burnedArea.clear();
-    for(int x = 0; x <= kinectROI.getRight(); x++ ){
-        vector<bool> row;
-        for (int y = 0; y <= kinectROI.getBottom(); y++ ){
-            row.push_back(false);
-        }
-        burnedArea.push_back(row);
-    }
-}
 
-void Model::resetFirePotential() {
-	randFirePotential = std::rand() % 50;
-	firePotential.clear();
-	for (int x = 0; x <= kinectROI.getRight(); x++) {
+void Model::spreadTrees() {
+	firePotential.clear(); 
+	for (int x = 0; x <= kinectROI.getRight(); x++){
 		vector<int> row;
-		for (int y = 0; y <= kinectROI.getBottom(); y++){
-			row.push_back(rand);
+		for (int y = 0; y <= kinectROI.getBottom(); y++) {
+			// above a hight of 200 and under a hight of 0 the firePotential should be small (<10)
+			// hight (200) good??
+			if (elevationAtKinectCoord(currentLocation.x, currentLocation.y) > 200) {
+				firePotential[floor(location.x)][floor(location.y)] = (std::rand() % 10);
+			}
+			// if not, the firePotential should lie between 11 and 50
+			else {
+				row.push_back((std::rand() % 40) + 11);
+			}
 		}
 		firePotential.push_back(row);
 	}
 }
+
+
 
