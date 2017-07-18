@@ -82,14 +82,7 @@ void Model::update() {
 	for (int i = 0; i < size; i++) {
 		int spreadFactor = 0;
 		ofPoint location = fires[i].getLocation();
-		// if firePotential is larger than 40 (= tree), all four positions around should get similar values
-		if (firePotential[floor(location.x)][floor(location.y)] >= 40) {
-			firePotential[floor(location.x + 1)][floor(location.y)] = (firePotential[floor(location.x)][floor(location.y)] - 3);
-			firePotential[floor(location.x + 1)][floor(location.y + 1)] = (firePotential[floor(location.x)][floor(location.y)] - 3);
-			firePotential[floor(location.x)][floor(location.y + 1)] = (firePotential[floor(location.x)][floor(location.y)] - 3);
-			firePotential[floor(location.x + 1)][floor(location.y + 1)] = (firePotential[floor(location.x)][floor(location.y)] - 3);
-			
-		}
+
 		// kill fires where no firePotential is left
 		if ((firePotential[floor(location.x)][floor(location.y)]) == 0) {
 			fires[i].kill();
@@ -101,7 +94,7 @@ void Model::update() {
 			firePotential[floor(location.x)][floor(location.y)] = 0;
 		}
 
-		int rand = std::rand() % 50;
+		int rand = std::rand() % 100;
 
 		// set new fires with propability depending on spreadFactor 
 		if (fires[i].isAlive() && rand <= spreadFactor) {
@@ -149,18 +142,37 @@ void Model::spreadTrees() {
 	for (int x = 0; x <= kinectROI.getRight(); x++){
 		vector<int> row;
 		for (int y = 0; y <= kinectROI.getBottom(); y++) {
-			// above a hight of 200 and under a hight of 0 the firePotential should be small (<10)
+			// above a hight of 200 and under a hight of 0 the firePotential should be 5%
 			// hight (200) good??
 			if (elevationAtKinectCoord(currentLocation.x, currentLocation.y) > 200) {
-				firePotential[floor(location.x)][floor(location.y)] = (std::rand() % 10);
+				firePotential[floor(location.x)][floor(location.y)] = (5);
 			}
-			// if not, the firePotential should lie between 11 and 50
+			// if not, the firePotential should be 10% 
 			else {
-				row.push_back((std::rand() % 40) + 11);
+				row.push_back(10);
 			}
 		}
 		firePotential.push_back(row);
 	}
+	// corresponding to the treePotential the firePotential is 15%, positions around tree have similar values
+	treePotential = 5
+	for (int x = 0; x <= kinectROI.getRight(); x++){
+		vector<int> row;
+		for (int y = 0; y <= kinectROI.getBottom(); y++) {
+			if (treePotential < (std::rand() % 100)  ){
+				firePotential[floor(location.x)][floor(location.y)] = 15;
+				firePotential[floor(location.x)][floor(location.y + 1)] = 12;
+				firePotential[floor(location.x)][floor(location.y - 1)] = 12;
+				firePotential[floor(location.x + 1)][floor(location.y)] = 12;
+				firePotential[floor(location.x + 1)][floor(location.y + 1)] = 12;
+				firePotential[floor(location.x + 1)][floor(location.y - 1)] = 12;
+				firePotential[floor(location.x - 1)][floor(location.y + 1)] = 12;
+				firePotential[floor(location.x - 1)][floor(location.y - 1)] = 12;
+				firePotential[floor(location.x - 1)][floor(location.y)] = 12;
+			}
+		}
+		firePotential.push_back(row);
+	}		
 }
 
 
