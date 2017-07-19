@@ -153,16 +153,12 @@ ofPoint Vehicle::windEffect(float windspeed, float winddirection) {
 		windForce = 0;
 	}
 
-	//Determine if headwind oder tailwind , sidewinds have no effect at the moment
-	if(directionOfWind < positiveRangeFire && directionOfWind > negativeRangeFire){
-		velocityChange = velocity * windForce;
-	} else if (inverseWinddirection < positiveRangeFire && inverseWinddirection > negativeRangeFire){
-		velocityChange = -velocity * windForce;
-	} else {
-		velocityChange = ofPoint(0);
-	}
+	float windDir = ofDegToRad(winddirection);
+	ofPoint desired = ofVec2f(cos(windDir), sin(windDir));
+	desired.normalize();
+	desired *= windForce;
 
-	return velocityChange;
+	return desired.limit(maxVelocityChange);
 }
 
 
@@ -221,6 +217,7 @@ void Fire::setup(){
     velocityIncreaseStep = 2;
     minVelocity = velocityIncreaseStep;
     
+    intensity = 3;
 	alive = true;
 }
 // Rotation vom Rabbit : Simon
@@ -303,18 +300,15 @@ void Fire::applyBehaviours(float temp, float windspeed, float winddirection) {
 		}
 }
 
-void Fire::draw()
-{
+void Fire::draw(){
+    if(!alive){
+        intensity--;
+    }
     // saves the current coordinate system
     ofPushMatrix();
     ofTranslate(projectorCoord);
     ofRotate(angle);
-	ofColor color;
-	if (alive) {
-		 color = ofColor(255,0,0);
-	} else {
-		 color = ofColor(0, 0, 0);
-	}
+    ofColor color = getFlameColor();
     
     float sc = 2;
     
@@ -336,4 +330,12 @@ void Fire::draw()
 
 void Fire::kill(){
     alive = false;
+}
+
+ofColor Fire::getFlameColor(){
+    float intensityFactor = intensity <= 0 ? 0 : intensity*0.33;
+    int red = 255 * intensityFactor;
+    int green = 64 * intensityFactor;
+    int blue = 0 * intensityFactor;
+    return ofColor(red, green, blue);
 }

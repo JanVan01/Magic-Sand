@@ -16,6 +16,8 @@
 class Model{
 public:
     Model(std::shared_ptr<KinectProjector> const& k);
+
+	bool isRunning();
     
     void addNewFire();
     void addNewFire(ofVec2f fireSpawnPos);
@@ -35,10 +37,8 @@ public:
 
     
 private:
-	void deleteDeadFires();
-	void resetFirePotential();
 	void spreadTrees();
-	
+    void drawEmbers();
     
     std::shared_ptr<KinectProjector> kinectProjector;
     
@@ -46,6 +46,7 @@ private:
     
     // Fire
     vector<Fire> fires;
+    vector<Fire> embers;
     vector< vector<bool> > burnedArea;
 	vector< vector<int> > firePotential;
 	float temperature;
