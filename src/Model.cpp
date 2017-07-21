@@ -95,7 +95,7 @@ void Model::update(){
         } else {
             // set propability for new fires to firePotential
             // set firePotential to zero afterwards
-            spreadFactor = firePotential[floor(location.x)][floor(location.y)];
+            int spreadFactor = firePotential[floor(location.x)][floor(location.y)];
             firePotential[floor(location.x)][floor(location.y)] = 0;
             burnedArea[floor(location.x)][floor(location.y)] = true;
             int rand = std::rand() % 100;
@@ -147,13 +147,14 @@ void Model::drawEmbers(){
 
 void Model::spreadTrees() {
     firePotential.clear();
+	ofPoint currentLocation;
     for (int x = 0; x <= kinectROI.getRight(); x++){
         vector<int> row;
         for (int y = 0; y <= kinectROI.getBottom(); y++) {
             // above a hight of 200 and under a hight of 0 the firePotential should be 5%
             // hight (200) good??
-            if (elevationAtKinectCoord(currentLocation.x, currentLocation.y) > 200) {
-                firePotential[floor(location.x)][floor(location.y)] = (5);
+            if (kinectProjector->elevationAtKinectCoord(currentLocation.x, currentLocation.y) > 200) {
+                firePotential[x][y] = (5);
             }
             // if not, the firePotential should be 10%
             else {
@@ -168,15 +169,15 @@ void Model::spreadTrees() {
         vector<int> row;
         for (int y = 0; y <= kinectROI.getBottom(); y++) {
             if (treePotential < (std::rand() % 100)  ){
-                firePotential[floor(location.x)][floor(location.y)] = 15;
-                firePotential[floor(location.x)][floor(location.y + 1)] = 12;
-                firePotential[floor(location.x)][floor(location.y - 1)] = 12;
-                firePotential[floor(location.x + 1)][floor(location.y)] = 12;
-                firePotential[floor(location.x + 1)][floor(location.y + 1)] = 12;
-                firePotential[floor(location.x + 1)][floor(location.y - 1)] = 12;
-                firePotential[floor(location.x - 1)][floor(location.y + 1)] = 12;
-                firePotential[floor(location.x - 1)][floor(location.y - 1)] = 12;
-                firePotential[floor(location.x - 1)][floor(location.y)] = 12;
+                firePotential[x][y] = 15;
+                firePotential[x][y + 1] = 12;
+                firePotential[x][y - 1] = 12;
+                firePotential[x + 1][y] = 12;
+                firePotential[x + 1][y + 1] = 12;
+                firePotential[x + 1][y - 1] = 12;
+                firePotential[x - 1][y + 1] = 12;
+                firePotential[x - 1][y - 1] = 12;
+                firePotential[x - 1][y] = 12;
             }
         }
         firePotential.push_back(row);
