@@ -97,7 +97,6 @@ void Model::update(){
             // set firePotential to zero afterwards
             int spreadFactor = firePotential[floor(location.x)][floor(location.y)];
             firePotential[floor(location.x)][floor(location.y)] = 0;
-            burnedArea[floor(location.x)][floor(location.y)] = true;
             int rand = std::rand() % 100;
             if (fires[i].isAlive() && rand < spreadFactor){
                 int angle = fires[i].getAngle();
@@ -147,28 +146,27 @@ void Model::drawEmbers(){
 
 void Model::spreadTrees() {
     firePotential.clear();
-	ofPoint currentLocation;
     for (int x = 0; x <= kinectROI.getRight(); x++){
         vector<int> row;
         for (int y = 0; y <= kinectROI.getBottom(); y++) {
-            // above a hight of 200 and under a hight of 0 the firePotential should be 5%
-            // hight (200) good??
-            if (kinectProjector->elevationAtKinectCoord(currentLocation.x, currentLocation.y) > 200) {
-                firePotential[x][y] = (5);
-            }
-            // if not, the firePotential should be 10%
-            else {
+            if (kinectProjector->elevationAtKinectCoord(x, y) > 200) {
+                // if the height is above 200 the firepotential is lower
+                row.push_back(5);
+            } else {
                 row.push_back(10);
             }
         }
         firePotential.push_back(row);
     }
+
     // corresponding to the treePotential the firePotential is 15%, positions around tree have similar values
-    float treePotential = 5;
-    for (int x = 0; x <= kinectROI.getRight(); x++){
-        vector<int> row;
-        for (int y = 0; y <= kinectROI.getBottom(); y++) {
-            if (treePotential < (std::rand() % 100)  ){
+    int treePotential = 5;
+    for (int x = 0; x < firePotential.size(); x++){
+        for (int y = 0; y < firePotential[x].size(); y++) {
+            if (x == 0 || y == 0 || x == firePotential.size()-1 || y == firePotential[x].size()-1){
+                continue;
+            }
+            if (treePotential >= (std::rand() % 100)){
                 firePotential[x][y] = 15;
                 firePotential[x][y + 1] = 12;
                 firePotential[x][y - 1] = 12;
@@ -180,7 +178,6 @@ void Model::spreadTrees() {
                 firePotential[x - 1][y] = 12;
             }
         }
-        firePotential.push_back(row);
     }		
 }
 

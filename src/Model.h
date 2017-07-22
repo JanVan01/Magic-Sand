@@ -47,7 +47,6 @@ private:
     // Fire
     vector<Fire> fires;
     vector<Fire> embers;
-    vector< vector<bool> > burnedArea;
 	vector< vector<int> > firePotential;
 	float temperature;
 	float windspeed;
