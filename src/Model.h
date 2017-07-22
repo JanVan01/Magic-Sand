@@ -22,6 +22,7 @@ public:
     void addNewFire();
     void addNewFire(ofVec2f fireSpawnPos);
     void addNewFire(ofVec2f fireSpawnPos, float angle);
+    void addNewFireInRiskZone();
 	//Fire parameters setters and getters
 	void setTemp(float uiTemp);
 	void setWindspeed(float uiWindspeed);
@@ -50,7 +51,7 @@ private:
     // Fire
     vector<Fire> fires;
     vector<Fire> embers;
-	vector< vector<bool> > riskZones;
+	vector<ofVec2f> riskZones;
     vector< vector<bool> > burnedArea;
 	float temperature;
 	float windspeed;

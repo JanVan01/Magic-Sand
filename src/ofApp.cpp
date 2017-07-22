@@ -213,6 +213,7 @@ void ofApp::setupGui(){
 	gui->addSlider("Wind speed", 0, 10);
 	gui->addSlider("Wind direction", 0, 360);
 	gui->addButton("Start fire");
+    gui->addButton("Start fire in risk zone");
 	gui->addButton("Reset");
 	gui->addHeader(":: Fire simulation ::", false);
 
@@ -268,6 +269,13 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e) {
 		model->drawRiskZones();
 		fboVehicles.end();
 	}
+    
+    if (e.target->is("Start fire in risk zone")) {
+        fboVehicles.begin();
+        ofClear(0, 0, 0, 0);
+        fboVehicles.end();
+        model->addNewFireInRiskZone();
+    }
 }
 
 void ofApp::on2dPadEvent(ofxDatGui2dPadEvent e) {
