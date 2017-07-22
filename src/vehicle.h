@@ -114,11 +114,11 @@ private:
 
     ofColor getFlameColor();
 
-    int maxStraightPath; // max rabbit straight path length
-    int currentStraightPathLength;// current rabbit straight path length
+    int maxStraightPath;
+    int currentStraightPathLength;
     int intensity;
     
-    float velocityIncreaseStep; // Rabbit increase step
+    float velocityIncreaseStep;
     float minVelocity;
 	bool alive;
 };
