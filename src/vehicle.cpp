@@ -258,7 +258,7 @@ void Fire::applyBehaviours() {
     applyBehaviours(20,0,0);
 }
 
-void Fire::applyBehaviours(float temp, float windspeed, float winddirection) {
+void Fire::applyBehaviours(float windspeed, float winddirection) {
     updateBeachDetection();
     
     ofVec2f wanderF = wanderEffect();
