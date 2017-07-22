@@ -213,8 +213,10 @@ void ofApp::setupGui(){
 	gui = new ofxDatGui();
 	gui->addButton("Calculate Risk Zones");
 	gui->add2dPad("Fire position", kinectROI);
-	gui->addSlider("Wind speed", 0, 10, windSpeed);
-	gui->addSlider("Wind direction", 0, 360, windDirection);
+	ofxDatGuiSlider* windSpeedSlider = gui->addSlider("Wind speed", 0, 10, windSpeed);
+	windSpeedSlider->bind(windSpeed);
+	ofxDatGuiSlider* windDirectionSlider = gui->addSlider("Wind direction", 0, 360, windDirection);
+	windDirectionSlider->bind(windDirection);
 	gui->addButton("Start fire");
 	gui->addButton("Reset");
 	gui->addHeader(":: Fire simulation ::", false);
@@ -226,6 +228,7 @@ void ofApp::setupGui(){
     
     gui->setLabelAlignment(ofxDatGuiAlignment::CENTER);
     gui->setPosition(ofxDatGuiAnchor::BOTTOM_RIGHT);
+
 	
 	gui->setAutoDraw(false); // troubles with multiple windows drawings on Windows
 }
@@ -285,11 +288,9 @@ void ofApp::on2dPadEvent(ofxDatGui2dPadEvent e) {
 void ofApp::onSliderEvent(ofxDatGuiSliderEvent e) {
 	if (e.target->is("Wind speed")) {
 		model->setWindSpeed(e.value);
-		windSpeed = e.value;
 	}
 
 	if (e.target->is("Wind direction")) {
-		model->setWindDirection(e.value);
-		windDirection = e.value;		
+		model->setWindDirection(e.value);		
 	}
 }
