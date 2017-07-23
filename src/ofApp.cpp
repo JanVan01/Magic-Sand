@@ -73,7 +73,10 @@ void ofApp::update() {
 	kinectProjector->update();
     
 	sandSurfaceRenderer->update();
-    
+
+	gui2->getLabel("Burned Area:")->setLabel(model->getAmountofBurnedArea());
+
+
     if (kinectProjector->isROIUpdated())
         kinectROI = kinectProjector->getKinectROI();
 
@@ -227,8 +230,14 @@ void ofApp::setupGui(){
 	gui->onSliderEvent(this, &ofApp::onSliderEvent);
     
     gui->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-    gui->setPosition(ofxDatGuiAnchor::BOTTOM_RIGHT);
+    gui->setPosition(ofxDatGuiAnchor::TOP_RIGHT);
+	// Fire statistics GUI
+	gui2 = new ofxDatGui();
+	ofxDatGuiValuePlotter* areaBurnedPlot = gui2->addValuePlotter("Area burned", 0, 100);	
+	gui2->addLabel("Burned Area:");
 
+
+	gui2->setPosition(ofxDatGuiAnchor::BOTTOM_RIGHT);
 	
 	gui->setAutoDraw(false); // troubles with multiple windows drawings on Windows
 }

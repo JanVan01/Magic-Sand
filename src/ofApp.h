@@ -78,6 +78,7 @@ private:
 
 	// GUI
 	ofxDatGui* gui;
+	ofxDatGui* gui2;
 
     void drawMainWindow(float x, float y, float width, float height);
     void drawWindArrow();
