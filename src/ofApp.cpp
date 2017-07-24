@@ -302,6 +302,7 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e) {
 		gui->getButton("Start fire")->setLabel("Start fire");
 		gui->get2dPad("Fire position")->reset();
 		gui2->getLabel("Runtime: Model not running")->setLabel("Runtime: Model not running");
+		firePos.set(kinectROI.width / 2, kinectROI.height / 2);
 		runstate = false;
 		
 	}
