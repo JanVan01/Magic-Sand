@@ -73,7 +73,8 @@ void ofApp::update() {
 	kinectProjector->update();
     
 	sandSurfaceRenderer->update();
-    
+	setStatistics();
+	
     if (kinectProjector->isROIUpdated())
         kinectROI = kinectProjector->getKinectROI();
 
@@ -172,6 +173,14 @@ void ofApp::drawPositioningTarget(ofVec2f firePos)
 	fboVehicles.end();
 }
 
+void ofApp::setStatistics() {
+	// Set model information
+	amountOfAgents = model->getAmountOfAgents();
+	gui2->getValuePlotter("Fire intensity")->setValue(amountOfAgents);
+
+	gui2->getLabel("Burned Area:")->setLabel(model->getAmountofBurnedArea());
+}
+
 void ofApp::keyPressed(int key) {
 
 }
@@ -222,8 +231,10 @@ void ofApp::setupGui(){
 	gui = new ofxDatGui();
 	gui->addButton("Calculate Risk Zones");
 	gui->add2dPad("Fire position", kinectROI);
-	gui->addSlider("Wind speed", 0, 10, windSpeed);
-	gui->addSlider("Wind direction", 0, 360, windDirection);
+	ofxDatGuiSlider* windSpeedSlider = gui->addSlider("Wind speed", 0, 10, windSpeed);
+	windSpeedSlider->bind(windSpeed);
+	ofxDatGuiSlider* windDirectionSlider = gui->addSlider("Wind direction", 0, 360, windDirection);
+	windDirectionSlider->bind(windDirection);
 	gui->addButton("Start fire");
 	gui->addButton("Reset");
 	gui->addHeader(":: Fire simulation ::", false);
@@ -234,7 +245,15 @@ void ofApp::setupGui(){
 	gui->onSliderEvent(this, &ofApp::onSliderEvent);
     
     gui->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-    gui->setPosition(ofxDatGuiAnchor::BOTTOM_RIGHT);
+    gui->setPosition(ofxDatGuiAnchor::TOP_RIGHT);
+	// Fire statistics GUI
+	gui2 = new ofxDatGui();
+	ofxDatGuiValuePlotter* areaBurnedPlot = gui2->addValuePlotter("Fire intensity", 0, 150);	
+	gui2->addLabel("Burned area:");
+	gui2->addHeader(":: Fire statistics::", false);
+
+
+	gui2->setPosition(ofxDatGuiAnchor::BOTTOM_RIGHT);
 	
 	gui->setAutoDraw(false); // troubles with multiple windows drawings on Windows
 }
@@ -294,11 +313,9 @@ void ofApp::on2dPadEvent(ofxDatGui2dPadEvent e) {
 void ofApp::onSliderEvent(ofxDatGuiSliderEvent e) {
 	if (e.target->is("Wind speed")) {
 		model->setWindSpeed(e.value);
-		windSpeed = e.value;
 	}
 
 	if (e.target->is("Wind direction")) {
-		model->setWindDirection(e.value);
-		windDirection = e.value;		
+		model->setWindDirection(e.value);		
 	}
 }

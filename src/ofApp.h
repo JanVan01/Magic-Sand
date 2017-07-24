@@ -73,13 +73,16 @@ private:
 
 	//Model Variables
 	bool runstate;
-    float windSpeed;
-    float windDirection;
+  float windSpeed;
+	int amountOfAgents;
+  float windDirection;
 
 	// GUI
 	ofxDatGui* gui;
+	ofxDatGui* gui2;
 
     void drawMainWindow(float x, float y, float width, float height);
     void drawWindArrow();
     void drawPositioningTarget(ofVec2f firePos);
+	void setStatistics();
 };
