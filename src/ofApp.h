@@ -73,16 +73,20 @@ private:
 
 	//Model Variables
 	bool runstate;
-  float windSpeed;
+    float windSpeed;
 	int amountOfAgents;
-  float windDirection;
+    float windDirection;
+	double duration;
+	std::clock_t startTime;
 
 	// GUI
 	ofxDatGui* gui;
 	ofxDatGui* gui2;
+	string time;
 
     void drawMainWindow(float x, float y, float width, float height);
     void drawWindArrow();
     void drawPositioningTarget(ofVec2f firePos);
 	void setStatistics();
+	void stopWatch();
 };

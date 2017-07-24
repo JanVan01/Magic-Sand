@@ -73,7 +73,8 @@ void ofApp::update() {
 	kinectProjector->update();
     
 	sandSurfaceRenderer->update();
-	setStatistics();
+	
+	
 	
     if (kinectProjector->isROIUpdated())
         kinectROI = kinectProjector->getKinectROI();
@@ -89,6 +90,7 @@ void ofApp::update() {
         if(runstate){
 			model->update();
 			drawVehicles();
+			setStatistics();
 		}
 	}
 	gui->update();
@@ -177,6 +179,13 @@ void ofApp::setStatistics() {
 	// Set model information
 	gui2->getValuePlotter("Fire intensity")->setValue(model->getNumberOfAgents());
 	gui2->getLabel("Burned Area:")->setLabel(model->getPercentageOfBurnedArea());
+	stopWatch();
+	gui2->getLabel("Runtime: Model not running")->setLabel(time);
+}
+
+void ofApp::stopWatch() {
+	duration = (std::clock() - startTime) / (double)CLOCKS_PER_SEC;
+	time = "Time: " + std::to_string(int(duration)) + " seconds";
 }
 
 void ofApp::keyPressed(int key) {
@@ -248,6 +257,7 @@ void ofApp::setupGui(){
 	// Fire statistics GUI
 	gui2 = new ofxDatGui();
 	gui2->setTheme(new ofxDatGuiThemeAqua());
+	gui2->addLabel("Runtime: Model not running");
 	ofxDatGuiValuePlotter* areaBurnedPlot = gui2->addValuePlotter("Fire intensity", 0, 150);	
 	gui2->addLabel("Burned area:");
 	gui2->addHeader(":: Fire statistics::", false);
@@ -263,6 +273,8 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e) {
 		// Button functionality depending on State
 		if (gui->getButton("Start fire")->getLabel() == "Start fire") {
 			runstate = true;
+			// Initialize clock for stopwatch
+			startTime = std::clock();
 			// Clear vehicles FBO of target arrow
 			fboVehicles.begin();
 			ofClear(0, 0, 0, 0);
@@ -274,10 +286,11 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e) {
 		else if (gui->getButton("Start fire")->getLabel() == "Pause") {
 			runstate = false;
 			gui->getButton("Start fire")->setLabel("Resume");
+			gui2->getLabel("Runtime: Model not running")->setLabel(time + " paused");
 		}
 		else if (gui->getButton("Start fire")->getLabel() == "Resume") {
 			runstate = true;
-			gui->getButton("Start fire")->setLabel("Pause");
+			gui->getButton("Start fire")->setLabel("Pause");		
 		}
 	}
 
@@ -288,6 +301,7 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e) {
 		fboVehicles.end();
 		gui->getButton("Start fire")->setLabel("Start fire");
 		gui->get2dPad("Fire position")->reset();
+		gui2->getLabel("Runtime: Model not running")->setLabel("Runtime: Model not running");
 		runstate = false;
 		
 	}
