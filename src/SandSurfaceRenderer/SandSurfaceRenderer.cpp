@@ -288,7 +288,7 @@ void SandSurfaceRenderer::setupGui(){
     saveModal->addListener(this, &SandSurfaceRenderer::onSaveModalEvent);
     
     // instantiate the gui //
-    gui2 = new ofxDatGui( ofxDatGuiAnchor::TOP_LEFT );
+    gui2 = new ofxDatGui( ofxDatGuiAnchor::BOTTOM_LEFT );
 	gui2->setTheme(new ofxDatGuiThemeAqua());
     gui2->addToggle("Contour lines", drawContourLines)->setStripeColor(ofColor::blue);
     gui2->addSlider("Lines distance", 1, 30, contourLineDistance)->setName("Contour lines distance");
