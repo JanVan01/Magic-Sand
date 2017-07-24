@@ -277,6 +277,7 @@ void Fire::applyBehaviours(float windspeed, float winddirection) {
 	newDir += windF;
 
     applyVelocityChange(newDir);
+    applyVelocityChange(oldDir);
 }
 
 void Fire::draw(){
