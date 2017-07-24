@@ -205,7 +205,6 @@ void Model::drawRiskZones() {
 		vector<bool> row;
 		for (int y = 0; y < riskZones[x].size(); y++) {
 			if (riskZones[x][y]) {
-				ofPushMatrix();
 				ofColor color = ofColor(255, 0, 0, 200);
 				ofPoint coord = kinectProjector->kinectCoordToProjCoord(x, y);
 				ofFill();
@@ -217,12 +216,6 @@ void Model::drawRiskZones() {
 				riskZone.draw();
 
 				ofNoFill();
-
-				// restore the pushed state
-				ofPopMatrix();
-			}
-			else {
-				//Keine Gefahr Zeichne Grün an Position XY
 			}
 		}
 	}
@@ -230,7 +223,7 @@ void Model::drawRiskZones() {
 
 string Model::getPercentageOfBurnedArea(){
 	float percentage = (burnedAreaCounter / (completeArea/7)) * 100;
-    percentage = percentage<100 ? 100 : percentage;
+    percentage = percentage < 100 ? percentage : 100;
 	string percentStr = "Burned area: ";
 	percentStr += std::to_string(percentage);
 	percentStr += " %";
