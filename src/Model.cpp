@@ -208,7 +208,7 @@ void Model::spreadTrees() {
     }
 
     // corresponding to the treePotential the firePotential is 15%, positions around tree have similar values
-    int treePotential = 5;
+    int treePotential = 2;
     for (int x = 0; x < firePotential.size(); x++){
         for (int y = 0; y < firePotential[x].size(); y++) {
             if (x == 0 || y == 0 || x == firePotential.size()-1 || y == firePotential[x].size()-1){
