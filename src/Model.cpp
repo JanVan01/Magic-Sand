@@ -226,21 +226,15 @@ void Model::drawRiskZones() {
 	}
 }
 
-string Model::getAmountofBurnedArea()
-{
+string Model::getPercentageOfBurnedArea(){
 	float percentage = (burnedAreaCounter / (completeArea/7)) * 100;
+    percentage = percentage<100 ? 100 : percentage;
 	string percentStr = "Burned area: ";
 	percentStr += std::to_string(percentage);
 	percentStr += " %";
 	return percentStr;
 }
 
-int Model::getBurnedAreaCounter()
-{
-	return burnedAreaCounter;
-}
-
-int Model::getAmountOfAgents()
-{
+int Model::getNumberOfAgents(){
 	return fires.size();
 }
