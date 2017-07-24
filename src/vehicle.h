@@ -38,8 +38,6 @@ public:
     
     void update();
     
-    std::vector<ofVec2f> getForces(void);
-    
     const ofPoint& getLocation() const {
         return location;
     }
@@ -53,6 +51,7 @@ public:
     
 protected:
     void updateBeachDetection();
+    ofPoint angleToVector(float angle);
     ofPoint bordersEffect();
     ofPoint slopesEffect();
 	ofPoint hillEffect();
@@ -67,13 +66,6 @@ protected:
     ofPoint globalVelocityChange;
     ofVec2f currentForce;
     float angle; // direction of the drawing
-    
-    ofVec2f separateF ;
-    ofVec2f bordersF ;
-    ofVec2f slopesF ;
-    ofVec2f wanderF ;
-	ofVec2f hillF;
-	ofVec2f windF;
 
     bool beach;
     bool border;
@@ -122,11 +114,11 @@ private:
 
     ofColor getFlameColor();
 
-    int maxStraightPath; // max rabbit straight path length
-    int currentStraightPathLength;// current rabbit straight path length
+    int maxStraightPath;
+    int currentStraightPathLength;
     int intensity;
     
-    float velocityIncreaseStep; // Rabbit increase step
+    float velocityIncreaseStep;
     float minVelocity;
 	bool alive;
 };
