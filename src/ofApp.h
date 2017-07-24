@@ -73,9 +73,9 @@ private:
 
 	//Model Variables
 	bool runstate;
-    float windSpeed;
-    int windDirection;
+  float windSpeed;
 	int amountOfAgents;
+  float windDirection;
 
 	// GUI
 	ofxDatGui* gui;
