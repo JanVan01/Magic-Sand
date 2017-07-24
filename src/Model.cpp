@@ -47,8 +47,16 @@ void Model::addNewFireInRiskZone(){
     if (riskZones.size() == 0){
         calculateRiskZones();
     }
-    int index = std::rand() % riskZones.size();
-    ofVec2f spawnPosition = riskZones[index];
+    ofVec2f spawnPosition;
+    ofRectangle borders = kinectProjector->getKinectROI();
+    borders.scaleFromCenter((borders.width-50)/borders.width, (borders.height-50)/borders.height);
+    int counter = 0;
+    do {
+        int index = std::rand() % riskZones.size();
+        ofVec2f spawnPosition = riskZones[index];
+        counter++;
+    } while (!borders.inside(spawnPosition)&& counter <= 100);
+    
     addNewFire(spawnPosition);
 }
 
