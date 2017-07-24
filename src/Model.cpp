@@ -10,6 +10,7 @@
 
 Model::Model(std::shared_ptr<KinectProjector> const& k){
     kinectProjector = k;
+    timestep = 0;
     
     
     // Retrieve variables
@@ -90,7 +91,7 @@ void Model::update(){
             burnedArea[floor(location.x)][floor(location.y)] = true;
 			burnedAreaCounter += 1;
             int rand = std::rand() % 100;
-            int spreadFactor = 10;
+            int spreadFactor = timestep < 10 ? 70 : 10;
             if (fires[i].isAlive() && rand < spreadFactor){
                 int angle = fires[i].getAngle();
                 addNewFire(location, (angle + 90)%360);
@@ -104,6 +105,7 @@ void Model::update(){
         f.applyBehaviours(windSpeed, windDirection);
         f.update();
     }
+    timestep++;
 }
 
 void Model::draw(){

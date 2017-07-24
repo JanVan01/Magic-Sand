@@ -47,6 +47,8 @@ private:
     
     float windSpeed;
     float windDirection;
+    
+    int timestep;
 
 	int burnedAreaCounter;
 	int completeArea;
