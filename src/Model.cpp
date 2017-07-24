@@ -151,11 +151,8 @@ void Model::resetBurnedArea(){
 
 void Model::calculateRiskZones() {
     riskZones.clear();
-	for (int x = 0; x <= kinectROI.getRight(); x++) {
-		for (int y = 0; y <= kinectROI.getBottom(); y++) {
-			if (x == 0 || x == kinectROI.getRight() || y == 0 || y == kinectROI.getBottom()) {
-				continue;
-			}
+	for (int x = kinectROI.getLeft() + 1; x < kinectROI.getRight(); x++) {
+		for (int y = kinectROI.getTop() + 1; y < kinectROI.getBottom(); y++) {
 			float cell_aspect;
 			float cell_slope;
 			//assignment of the neighborhood
