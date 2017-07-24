@@ -874,6 +874,7 @@ ofVec2f KinectProjector::gradientAtKinectCoord(float x, float y){
 void KinectProjector::setupGui(){
     // instantiate and position the gui //
     gui = new ofxDatGui( ofxDatGuiAnchor::BOTTOM_LEFT);
+	gui->setTheme(new ofxDatGuiThemeAqua());
     gui->addFRM();
     gui->addBreak();
     gui->addSlider("Tilt X", -30, 30, 0);

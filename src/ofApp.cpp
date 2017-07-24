@@ -227,6 +227,7 @@ void ofApp::setupGui(){
 	
 	//Fire Simulation GUI : Simon
 	gui = new ofxDatGui();
+	gui->setTheme(new ofxDatGuiThemeAqua());
 	gui->addButton("Calculate Risk Zones");
 	gui->add2dPad("Fire position", kinectROI);
 	ofxDatGuiSlider* windSpeedSlider = gui->addSlider("Wind speed", 0, 10, windSpeed);
@@ -246,6 +247,7 @@ void ofApp::setupGui(){
     gui->setPosition(ofxDatGuiAnchor::TOP_RIGHT);
 	// Fire statistics GUI
 	gui2 = new ofxDatGui();
+	gui2->setTheme(new ofxDatGuiThemeAqua());
 	ofxDatGuiValuePlotter* areaBurnedPlot = gui2->addValuePlotter("Fire intensity", 0, 150);	
 	gui2->addLabel("Burned area:");
 	gui2->addHeader(":: Fire statistics::", false);
