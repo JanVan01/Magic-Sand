@@ -256,3 +256,22 @@ void Model::drawRiskZones() {
 		}
 	}
 }
+void Model::drawTrees() {
+	for (int x = 0; x < firePotential.size(); x++) {
+		for (int y = 0; y < firePotential[x].size(); y++) {
+			if (firePotential[x][y] == 15) {
+				ofColor color = ofColor(0, 153, 0, 200);
+				ofPoint coord = kinectProjector->kinectCoordToProjCoord(x, y);
+				ofFill();
+
+				ofPath treeZone;
+				treeZone.circle(coord.x, coord.y, 4);
+				treeZone.setFillColor(color);
+				treeZone.setStrokeWidth(0);
+				treeZone.draw();
+
+				ofNoFill();
+			}
+		}
+	}
+}

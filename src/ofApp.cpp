@@ -209,6 +209,7 @@ void ofApp::setupGui(){
 	//Fire Simulation GUI : Simon
 	gui = new ofxDatGui();
 	gui->addButton("Calculate Risk Zones");
+	gui->addButton("Spread Trees");
 	gui->add2dPad("Fire position", kinectROI);
 	gui->addSlider("Wind speed", 0, 10);
 	gui->addSlider("Wind direction", 0, 360);
@@ -266,6 +267,13 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e) {
 		fboVehicles.begin();
 		ofClear(0, 0, 0, 0);
 		model->drawRiskZones();
+		fboVehicles.end();
+	}
+
+	if (e.target->is("Spread Trees")) {
+		fboVehicles.begin();
+		ofClear(0, 0, 0, 0);
+		model->drawTrees();
 		fboVehicles.end();
 	}
 }

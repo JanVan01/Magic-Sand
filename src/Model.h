@@ -38,6 +38,8 @@ public:
     
     void clear();
 
+	void drawTrees();
+
     
 private:
 	void spreadTrees();
