@@ -19,7 +19,7 @@ Model::Model(std::shared_ptr<KinectProjector> const& k){
 }
 
 bool Model::isRunning() {
-	return fires.size() > 0;
+	return fires.size() > 0 || embers.size() > 0;
 }
 
 void Model::addNewFire(){
@@ -78,16 +78,12 @@ bool Model::setRandomVehicleLocation(ofRectangle area, bool liveInWater, ofVec2f
 }
 
 // SETTERS and GETTERS Fire Parameters:
-void Model::setWindspeed(float uiwindspeed) {
-	windspeed = uiwindspeed;
+void Model::setWindSpeed(float v) {
+	windSpeed = v;
 }
 
-void Model::setTemp(float uiTemp) {
-	temperature = uiTemp;
-}
-
-void Model::setWinddirection(float uiWinddirection) {
-	winddirection = uiWinddirection;
+void Model::setWindDirection(float d) {
+	windDirection = d;
 }
 
 void Model::update(){
@@ -108,13 +104,9 @@ void Model::update(){
             size--;
         } else {
             burnedArea[floor(location.x)][floor(location.y)] = true;
+			burnedAreaCounter += 1;
             int rand = std::rand() % 100;
             int spreadFactor = 10;
-            if (temperature > 30) {
-                spreadFactor = 20;
-            } else if (temperature < 10) {
-                spreadFactor = 5;
-            }
             if (fires[i].isAlive() && rand < spreadFactor){
                 int angle = fires[i].getAngle();
                 addNewFire(location, (angle + 90)%360);
@@ -125,7 +117,7 @@ void Model::update(){
     }
     
     for (auto & f : fires){
-        f.applyBehaviours(temperature,windspeed,winddirection);
+        f.applyBehaviours(windSpeed, windDirection);
         f.update();
     }
 }
@@ -145,10 +137,13 @@ void Model::clear(){
 
 void Model::resetBurnedArea(){
     burnedArea.clear();
+	burnedAreaCounter = 0;
+	completeArea = 0;
     for(int x = 0; x <= kinectROI.getRight(); x++ ){
         vector<bool> row;
         for (int y = 0; y <= kinectROI.getBottom(); y++ ){
             row.push_back(false);
+			completeArea += 1;
         }
         burnedArea.push_back(row);
     }
@@ -227,4 +222,17 @@ void Model::drawRiskZones() {
         
         ofNoFill();
     }
+}
+
+string Model::getPercentageOfBurnedArea(){
+	float percentage = (burnedAreaCounter / (completeArea/7)) * 100;
+    percentage = percentage<100 ? 100 : percentage;
+	string percentStr = "Burned area: ";
+	percentStr += std::to_string(percentage);
+	percentStr += " %";
+	return percentStr;
+}
+
+int Model::getNumberOfAgents(){
+	return fires.size();
 }

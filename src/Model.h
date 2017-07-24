@@ -18,43 +18,42 @@ public:
     Model(std::shared_ptr<KinectProjector> const& k);
 
 	bool isRunning();
-    
+
+    void setWindSpeed(float v);
+    void setWindDirection(float d);
+
     void addNewFire();
     void addNewFire(ofVec2f fireSpawnPos);
     void addNewFire(ofVec2f fireSpawnPos, float angle);
     void addNewFireInRiskZone();
-	//Fire parameters setters and getters
-	void setTemp(float uiTemp);
-	void setWindspeed(float uiWindspeed);
-	void setWinddirection(float uiWinddirection);
-	void calculateRiskZones();
-    
-    bool setRandomVehicleLocation(ofRectangle area, bool liveInWater, ofVec2f & location);
-    
-    void update();
 
+    void calculateRiskZones();
 	void drawRiskZones();
+	
+	int getNumberOfAgents();
+	string getPercentageOfBurnedArea();
 
+    void update();
     void draw();
-    
     void clear();
 
-    
 private:
-	void resetBurnedArea();
-    void drawEmbers();
-    
     std::shared_ptr<KinectProjector> kinectProjector;
-    
     ofRectangle kinectROI;
     
-    // Fire
     vector<Fire> fires;
     vector<Fire> embers;
 	vector<ofVec2f> riskZones;
     vector< vector<bool> > burnedArea;
-	float temperature;
-	float windspeed;
-	float winddirection;
     
+    float windSpeed;
+    float windDirection;
+
+	int burnedAreaCounter;
+	int completeArea;
+
+    bool setRandomVehicleLocation(ofRectangle area, bool liveInWater, ofVec2f & location);
+
+	void resetBurnedArea();
+    void drawEmbers();
 };
