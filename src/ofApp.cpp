@@ -164,10 +164,8 @@ void ofApp::drawPositioningTarget(ofVec2f firePos)
 
 void ofApp::setStatistics() {
 	// Set model information
-	amountOfAgents = model->getAmountOfAgents();
-	gui2->getValuePlotter("Fire intensity")->setValue(amountOfAgents);
-
-	gui2->getLabel("Burned Area:")->setLabel(model->getAmountofBurnedArea());
+	gui2->getValuePlotter("Fire intensity")->setValue(model->getNumberOfAgents());
+	gui2->getLabel("Burned Area:")->setLabel(model->getPercentageOfBurnedArea());
 }
 
 void ofApp::keyPressed(int key) {
