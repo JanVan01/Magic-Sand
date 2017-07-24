@@ -73,10 +73,8 @@ void ofApp::update() {
 	kinectProjector->update();
     
 	sandSurfaceRenderer->update();
-
-	gui2->getLabel("Burned Area:")->setLabel(model->getAmountofBurnedArea());
-
-
+	setStatistics();
+	
     if (kinectProjector->isROIUpdated())
         kinectROI = kinectProjector->getKinectROI();
 
@@ -166,6 +164,14 @@ void ofApp::drawPositioningTarget(ofVec2f firePos)
 	fboVehicles.end();
 }
 
+void ofApp::setStatistics() {
+	// Set model information
+	amountOfAgents = model->getAmountOfAgents();
+	gui2->getValuePlotter("Fire intensity")->setValue(amountOfAgents);
+
+	gui2->getLabel("Burned Area:")->setLabel(model->getAmountofBurnedArea());
+}
+
 void ofApp::keyPressed(int key) {
 
 }
@@ -233,8 +239,9 @@ void ofApp::setupGui(){
     gui->setPosition(ofxDatGuiAnchor::TOP_RIGHT);
 	// Fire statistics GUI
 	gui2 = new ofxDatGui();
-	ofxDatGuiValuePlotter* areaBurnedPlot = gui2->addValuePlotter("Area burned", 0, 100);	
-	gui2->addLabel("Burned Area:");
+	ofxDatGuiValuePlotter* areaBurnedPlot = gui2->addValuePlotter("Fire intensity", 0, 150);	
+	gui2->addLabel("Burned area:");
+	gui2->addHeader(":: Fire statistics::", false);
 
 
 	gui2->setPosition(ofxDatGuiAnchor::BOTTOM_RIGHT);

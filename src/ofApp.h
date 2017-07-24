@@ -75,6 +75,7 @@ private:
 	bool runstate;
     float windSpeed;
     int windDirection;
+	int amountOfAgents;
 
 	// GUI
 	ofxDatGui* gui;
@@ -83,4 +84,5 @@ private:
     void drawMainWindow(float x, float y, float width, float height);
     void drawWindArrow();
     void drawPositioningTarget(ofVec2f firePos);
+	void setStatistics();
 };

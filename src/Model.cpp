@@ -122,10 +122,12 @@ void Model::clear(){
 void Model::resetBurnedArea(){
     burnedArea.clear();
 	burnedAreaCounter = 0;
+	completeArea = 0;
     for(int x = 0; x <= kinectROI.getRight(); x++ ){
         vector<bool> row;
         for (int y = 0; y <= kinectROI.getBottom(); y++ ){
             row.push_back(false);
+			completeArea += 1;
         }
         burnedArea.push_back(row);
     }
@@ -226,13 +228,19 @@ void Model::drawRiskZones() {
 
 string Model::getAmountofBurnedArea()
 {
-			
-	float completeArea = kinectROI.width * kinectROI.height;
-	float percentage = (burnedAreaCounter / completeArea) * 100;
-	return std::to_string(percentage);
+	float percentage = (burnedAreaCounter / (completeArea/7)) * 100;
+	string percentStr = "Burned area: ";
+	percentStr += std::to_string(percentage);
+	percentStr += " %";
+	return percentStr;
 }
 
 int Model::getBurnedAreaCounter()
 {
 	return burnedAreaCounter;
+}
+
+int Model::getAmountOfAgents()
+{
+	return fires.size();
 }
