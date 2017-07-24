@@ -88,6 +88,7 @@ void Model::update(){
             size--;
         } else {
             burnedArea[floor(location.x)][floor(location.y)] = true;
+			burnedAreaCounter += 1;
             int rand = std::rand() % 100;
             int spreadFactor = 10;
             if (fires[i].isAlive() && rand < spreadFactor){
@@ -120,10 +121,13 @@ void Model::clear(){
 
 void Model::resetBurnedArea(){
     burnedArea.clear();
+	burnedAreaCounter = 0;
+	completeArea = 0;
     for(int x = 0; x <= kinectROI.getRight(); x++ ){
         vector<bool> row;
         for (int y = 0; y <= kinectROI.getBottom(); y++ ){
             row.push_back(false);
+			completeArea += 1;
         }
         burnedArea.push_back(row);
     }
@@ -220,4 +224,17 @@ void Model::drawRiskZones() {
 			}
 		}
 	}
+}
+
+string Model::getPercentageOfBurnedArea(){
+	float percentage = (burnedAreaCounter / (completeArea/7)) * 100;
+    percentage = percentage<100 ? 100 : percentage;
+	string percentStr = "Burned area: ";
+	percentStr += std::to_string(percentage);
+	percentStr += " %";
+	return percentStr;
+}
+
+int Model::getNumberOfAgents(){
+	return fires.size();
 }

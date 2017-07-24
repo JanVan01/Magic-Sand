@@ -73,7 +73,8 @@ void ofApp::update() {
 	kinectProjector->update();
     
 	sandSurfaceRenderer->update();
-    
+	setStatistics();
+	
     if (kinectProjector->isROIUpdated())
         kinectROI = kinectProjector->getKinectROI();
 
@@ -124,10 +125,8 @@ void ofApp::drawVehicles()
 
 void ofApp::drawWindArrow()
 {
-	fboInterface.begin();
-    
-	ofClear(0, 0, 0, 0);
-    
+	fboInterface.begin();   
+	ofClear(0, 0, 0, 0);  
 	ofVec2f projectorCoord = kinectProjector->kinectCoordToProjCoord(75, 125);
 	ofTranslate(projectorCoord);
 	ofRotate(windDirection);
@@ -147,20 +146,37 @@ void ofApp::drawWindArrow()
 
 void ofApp::drawPositioningTarget(ofVec2f firePos) 
 {
-	fboVehicles.begin();
-	ofClear(0, 0, 0, 0);
 	ofVec2f projectorCoord = kinectProjector->kinectCoordToProjCoord(firePos.x, firePos.y);
+    
+    fboVehicles.begin();
+    ofClear(0, 0, 0, 0);
+    ofPushMatrix();
+    ofTranslate(projectorCoord.x, projectorCoord.y);
 
-	ofFill();
-
-	ofPath flame;
-	flame.circle(projectorCoord.x, projectorCoord.y, 10);
-    flame.setFillColor(ofColor::red);
-	flame.setStrokeWidth(0);
-	flame.draw();
-
-	ofNoFill();
+    float scale = 5;
+    
+    ofPath target;
+    target.circle(0, 0, 4 * scale);
+    target.circle(0, 0, 2 * scale);
+    target.moveTo(0, 5 * scale);
+    target.lineTo(0, -5 * scale);
+    target.moveTo(5 * scale, 0);
+    target.lineTo(-5 *scale, 0);
+    
+    target.setStrokeColor(ofColor::red);
+    target.setStrokeWidth(2);
+    target.setFilled(false);
+    
+    target.draw();
+    
+    ofPopMatrix();
 	fboVehicles.end();
+}
+
+void ofApp::setStatistics() {
+	// Set model information
+	gui2->getValuePlotter("Fire intensity")->setValue(model->getNumberOfAgents());
+	gui2->getLabel("Burned Area:")->setLabel(model->getPercentageOfBurnedArea());
 }
 
 void ofApp::keyPressed(int key) {
@@ -213,8 +229,10 @@ void ofApp::setupGui(){
 	gui = new ofxDatGui();
 	gui->addButton("Calculate Risk Zones");
 	gui->add2dPad("Fire position", kinectROI);
-	gui->addSlider("Wind speed", 0, 10, windSpeed);
-	gui->addSlider("Wind direction", 0, 360, windDirection);
+	ofxDatGuiSlider* windSpeedSlider = gui->addSlider("Wind speed", 0, 10, windSpeed);
+	windSpeedSlider->bind(windSpeed);
+	ofxDatGuiSlider* windDirectionSlider = gui->addSlider("Wind direction", 0, 360, windDirection);
+	windDirectionSlider->bind(windDirection);
 	gui->addButton("Start fire");
 	gui->addButton("Reset");
 	gui->addHeader(":: Fire simulation ::", false);
@@ -225,7 +243,15 @@ void ofApp::setupGui(){
 	gui->onSliderEvent(this, &ofApp::onSliderEvent);
     
     gui->setLabelAlignment(ofxDatGuiAlignment::CENTER);
-    gui->setPosition(ofxDatGuiAnchor::BOTTOM_RIGHT);
+    gui->setPosition(ofxDatGuiAnchor::TOP_RIGHT);
+	// Fire statistics GUI
+	gui2 = new ofxDatGui();
+	ofxDatGuiValuePlotter* areaBurnedPlot = gui2->addValuePlotter("Fire intensity", 0, 150);	
+	gui2->addLabel("Burned area:");
+	gui2->addHeader(":: Fire statistics::", false);
+
+
+	gui2->setPosition(ofxDatGuiAnchor::BOTTOM_RIGHT);
 	
 	gui->setAutoDraw(false); // troubles with multiple windows drawings on Windows
 }
@@ -285,11 +311,9 @@ void ofApp::on2dPadEvent(ofxDatGui2dPadEvent e) {
 void ofApp::onSliderEvent(ofxDatGuiSliderEvent e) {
 	if (e.target->is("Wind speed")) {
 		model->setWindSpeed(e.value);
-		windSpeed = e.value;
 	}
 
 	if (e.target->is("Wind direction")) {
-		model->setWindDirection(e.value);
-		windDirection = e.value;		
+		model->setWindDirection(e.value);		
 	}
 }

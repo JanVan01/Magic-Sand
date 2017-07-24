@@ -28,6 +28,9 @@ public:
 
     void calculateRiskZones();
 	void drawRiskZones();
+	
+	int getNumberOfAgents();
+	string getPercentageOfBurnedArea();
 
     void update();
     void draw();
@@ -44,6 +47,9 @@ private:
     
     float windSpeed;
     float windDirection;
+
+	int burnedAreaCounter;
+	int completeArea;
 
     bool setRandomVehicleLocation(ofRectangle area, bool liveInWater, ofVec2f & location);
 
