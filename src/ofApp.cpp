@@ -145,19 +145,30 @@ void ofApp::drawWindArrow()
 
 void ofApp::drawPositioningTarget(ofVec2f firePos) 
 {
-	fboVehicles.begin();
-	ofClear(0, 0, 0, 0);
 	ofVec2f projectorCoord = kinectProjector->kinectCoordToProjCoord(firePos.x, firePos.y);
+    
+    fboVehicles.begin();
+    ofClear(0, 0, 0, 0);
+    ofPushMatrix();
+    ofTranslate(projectorCoord.x, projectorCoord.y);
 
-	ofFill();
-
-	ofPath flame;
-	flame.circle(projectorCoord.x, projectorCoord.y, 10);
-    flame.setFillColor(ofColor::red);
-	flame.setStrokeWidth(0);
-	flame.draw();
-
-	ofNoFill();
+    float scale = 5;
+    
+    ofPath target;
+    target.circle(0, 0, 4 * scale);
+    target.circle(0, 0, 2 * scale);
+    target.moveTo(0, 5 * scale);
+    target.lineTo(0, -5 * scale);
+    target.moveTo(5 * scale, 0);
+    target.lineTo(-5 *scale, 0);
+    
+    target.setStrokeColor(ofColor::red);
+    target.setStrokeWidth(2);
+    target.setFilled(false);
+    
+    target.draw();
+    
+    ofPopMatrix();
 	fboVehicles.end();
 }
 
