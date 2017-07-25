@@ -56,6 +56,13 @@ void ofApp::setup() {
 	ofClear(0,0,0,0);
 	fboVehicles.end();
 
+	//RiskZone FBO
+	fboRiskZone.allocate(projRes.x, projRes.y, GL_RGBA);
+	fboRiskZone.begin();
+	ofClear(0, 0, 0, 0);
+	fboRiskZone.end();
+
+
 	//Initialize interface parameters without slider movement
     runstate = false;
 	firePos.set(kinectROI.width / 2, kinectROI.height / 2);
@@ -104,6 +111,7 @@ void ofApp::draw() {
 void ofApp::drawMainWindow(float x, float y, float width, float height){
     sandSurfaceRenderer->drawMainWindow(x, y, width, height);
     kinectProjector->drawMainWindow(x, y, width, height);
+	fboRiskZone.draw(x, y, width, height);
 	fboVehicles.draw(x, y, width, height);
 	fboInterface.draw(x, y, width, height);
 }
@@ -113,7 +121,8 @@ void ofApp::drawProjWindow(ofEventArgs &args) {
 	
 	if (!kinectProjector->isCalibrating()){
 	    sandSurfaceRenderer->drawProjectorWindow();
-	    fboVehicles.draw(0,0);
+		fboRiskZone.draw(0, 0);
+	    fboVehicles.draw(0, 0);
 		fboInterface.draw(0, 0);
 	}
 }
@@ -179,13 +188,8 @@ void ofApp::setStatistics() {
 	// Set model information
 	gui2->getValuePlotter("Fire intensity")->setValue(model->getNumberOfAgents());
 	gui2->getLabel("Burned Area:")->setLabel(model->getPercentageOfBurnedArea());
-	stopWatch();
-	gui2->getLabel("Runtime: Model not running")->setLabel(time);
-}
-
-void ofApp::stopWatch() {
-	duration = (std::clock() - startTime) / (double)CLOCKS_PER_SEC;
-	time = "Time: " + std::to_string(int(duration)) + " seconds";
+	time = "Timestep: " + std::to_string(model->getTimestep()) + " steps";
+	gui2->getLabel("Timestep: Model not running")->setLabel(time);
 }
 
 void ofApp::keyPressed(int key) {
@@ -237,7 +241,7 @@ void ofApp::setupGui(){
 	//Fire Simulation GUI : Simon
 	gui = new ofxDatGui();
 	gui->setTheme(new ofxDatGuiThemeAqua());
-	gui->addButton("Calculate Risk Zones");
+	gui->addToggle("Calculate Risk Zones");
 	gui->add2dPad("Fire position", kinectROI);
 	ofxDatGuiSlider* windSpeedSlider = gui->addSlider("Wind speed", 0, 10, windSpeed);
 	windSpeedSlider->bind(windSpeed);
@@ -251,18 +255,17 @@ void ofApp::setupGui(){
 	gui->onButtonEvent(this, &ofApp::onButtonEvent);
 	gui->on2dPadEvent(this, &ofApp::on2dPadEvent);
 	gui->onSliderEvent(this, &ofApp::onSliderEvent);
-    
+	gui->onToggleEvent(this, &ofApp::onToggleEvent);
     gui->setLabelAlignment(ofxDatGuiAlignment::CENTER);
     gui->setPosition(ofxDatGuiAnchor::TOP_RIGHT);
 	// Fire statistics GUI
 	gui2 = new ofxDatGui();
 	gui2->setTheme(new ofxDatGuiThemeAqua());
-	gui2->addLabel("Runtime: Model not running");
-	ofxDatGuiValuePlotter* areaBurnedPlot = gui2->addValuePlotter("Fire intensity", 0, 150);	
+	gui2->addLabel("Timestep: Model not running");
+	ofxDatGuiValuePlotter* areaBurnedPlot = gui2->addValuePlotter("Fire intensity", 0, 150);
+	areaBurnedPlot->setValue(0);
 	gui2->addLabel("Burned area:");
 	gui2->addHeader(":: Fire statistics::", false);
-
-
 	gui2->setPosition(ofxDatGuiAnchor::BOTTOM_RIGHT);
 	
 	gui->setAutoDraw(false); // troubles with multiple windows drawings on Windows
@@ -273,20 +276,25 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e) {
 		// Button functionality depending on State
 		if (gui->getButton("Start fire")->getLabel() == "Start fire") {
 			runstate = true;
-			// Initialize clock for stopwatch
-			startTime = std::clock();
 			// Clear vehicles FBO of target arrow
 			fboVehicles.begin();
 			ofClear(0, 0, 0, 0);
 			fboVehicles.end();
+
 			// Start fire
 			model->addNewFire(firePos);
 			gui->getButton("Start fire")->setLabel("Pause");
+
+			//Toggle Calc Risk Zones
+			gui->getToggle("Calculate Risk Zones")->setChecked(!runstate);
+			fboRiskZone.begin();
+			ofClear(0, 0, 0, 0);
+			fboRiskZone.end();
 		}
 		else if (gui->getButton("Start fire")->getLabel() == "Pause") {
 			runstate = false;
 			gui->getButton("Start fire")->setLabel("Resume");
-			gui2->getLabel("Runtime: Model not running")->setLabel(time + " paused");
+			gui2->getLabel("Timestep: Model not running")->setLabel(time + " paused");
 		}
 		else if (gui->getButton("Start fire")->getLabel() == "Resume") {
 			runstate = true;
@@ -301,18 +309,27 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e) {
 		fboVehicles.end();
 		gui->getButton("Start fire")->setLabel("Start fire");
 		gui->get2dPad("Fire position")->reset();
-		gui2->getLabel("Runtime: Model not running")->setLabel("Runtime: Model not running");
+		gui2->getLabel("Timestep: Model not running")->setLabel("Timestep: Model not running");
+		gui2->getLabel("Burned area:")->setLabel("Burned area:");
 		firePos.set(kinectROI.width / 2, kinectROI.height / 2);
 		runstate = false;
 		
 	}
+}
 
+void ofApp::onToggleEvent(ofxDatGuiToggleEvent e) {
 	if (e.target->is("Calculate Risk Zones")) {
-		model->calculateRiskZones();
-		fboVehicles.begin();
-		ofClear(0, 0, 0, 0);
-		model->drawRiskZones();
-		fboVehicles.end();
+		if (e.checked) {
+			model->calculateRiskZones();
+			fboRiskZone.begin();
+			ofClear(0, 0, 0, 0);
+			model->drawRiskZones();
+			fboRiskZone.end();
+		} else {
+			fboRiskZone.begin();
+			ofClear(0, 0, 0, 0);
+			fboRiskZone.end();
+		}
 	}
 }
 

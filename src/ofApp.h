@@ -53,6 +53,7 @@ public:
 
 	void setupGui();
 	void onButtonEvent(ofxDatGuiButtonEvent e);
+	void onToggleEvent(ofxDatGuiToggleEvent e);
 	void on2dPadEvent(ofxDatGui2dPadEvent e);
     void onSliderEvent(ofxDatGuiSliderEvent e);
 
@@ -69,6 +70,7 @@ private:
 	// FBos
 	ofFbo fboVehicles;
 	ofFbo fboInterface;
+	ofFbo fboRiskZone;
     ofVec2f firePos;
 
 	//Model Variables
@@ -88,5 +90,4 @@ private:
     void drawWindArrow();
     void drawPositioningTarget(ofVec2f firePos);
 	void setStatistics();
-	void stopWatch();
 };

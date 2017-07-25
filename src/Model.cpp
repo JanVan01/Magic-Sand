@@ -233,3 +233,7 @@ string Model::getPercentageOfBurnedArea(){
 int Model::getNumberOfAgents(){
 	return fires.size();
 }
+
+int Model::getTimestep() {
+	return timestep;
+}
