@@ -134,6 +134,7 @@ void Model::draw(){
 void Model::clear(){
     fires.clear();
 	embers.clear();
+    timestep = 0;
     resetBurnedArea();
 }
 
