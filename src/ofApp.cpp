@@ -262,7 +262,8 @@ void ofApp::setupGui(){
 	gui2 = new ofxDatGui();
 	gui2->setTheme(new ofxDatGuiThemeAqua());
 	gui2->addLabel("Timestep: Model not running");
-	ofxDatGuiValuePlotter* areaBurnedPlot = gui2->addValuePlotter("Fire intensity", 0, 150);	
+	ofxDatGuiValuePlotter* areaBurnedPlot = gui2->addValuePlotter("Fire intensity", 0, 150);
+	areaBurnedPlot->setValue(0);
 	gui2->addLabel("Burned area:");
 	gui2->addHeader(":: Fire statistics::", false);
 	gui2->setPosition(ofxDatGuiAnchor::BOTTOM_RIGHT);
@@ -309,6 +310,7 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e) {
 		gui->getButton("Start fire")->setLabel("Start fire");
 		gui->get2dPad("Fire position")->reset();
 		gui2->getLabel("Timestep: Model not running")->setLabel("Timestep: Model not running");
+		gui2->getLabel("Burned area:")->setLabel("Burned area:");
 		firePos.set(kinectROI.width / 2, kinectROI.height / 2);
 		runstate = false;
 		
