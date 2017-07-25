@@ -32,7 +32,7 @@ void Model::addNewFire(){
 }
 
 void Model::addNewFire(ofVec2f fireSpawnPos) {
-    addNewFire(fireSpawnPos, 0);
+    addNewFire(fireSpawnPos, windDirection);
 }
 
 void Model::addNewFire(ofVec2f fireSpawnPos, float angle){
