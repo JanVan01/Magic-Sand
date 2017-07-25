@@ -10,6 +10,7 @@
 
 Model::Model(std::shared_ptr<KinectProjector> const& k){
     kinectProjector = k;
+    timestep = 0;
     
     
     // Retrieve variables
@@ -31,7 +32,7 @@ void Model::addNewFire(){
 }
 
 void Model::addNewFire(ofVec2f fireSpawnPos) {
-    addNewFire(fireSpawnPos, 0);
+    addNewFire(fireSpawnPos, windDirection);
 }
 
 void Model::addNewFire(ofVec2f fireSpawnPos, float angle){
@@ -90,7 +91,7 @@ void Model::update(){
             burnedArea[floor(location.x)][floor(location.y)] = true;
 			burnedAreaCounter += 1;
             int rand = std::rand() % 100;
-            int spreadFactor = 10;
+            int spreadFactor = timestep < 10 ? 70 : 10;
             if (fires[i].isAlive() && rand < spreadFactor){
                 int angle = fires[i].getAngle();
                 addNewFire(location, (angle + 90)%360);
@@ -104,6 +105,7 @@ void Model::update(){
         f.applyBehaviours(windSpeed, windDirection);
         f.update();
     }
+    timestep++;
 }
 
 void Model::draw(){
@@ -203,7 +205,6 @@ void Model::drawRiskZones() {
 		vector<bool> row;
 		for (int y = 0; y < riskZones[x].size(); y++) {
 			if (riskZones[x][y]) {
-				ofPushMatrix();
 				ofColor color = ofColor(255, 0, 0, 200);
 				ofPoint coord = kinectProjector->kinectCoordToProjCoord(x, y);
 				ofFill();
@@ -215,12 +216,6 @@ void Model::drawRiskZones() {
 				riskZone.draw();
 
 				ofNoFill();
-
-				// restore the pushed state
-				ofPopMatrix();
-			}
-			else {
-				//Keine Gefahr Zeichne Grün an Position XY
 			}
 		}
 	}
@@ -228,7 +223,7 @@ void Model::drawRiskZones() {
 
 string Model::getPercentageOfBurnedArea(){
 	float percentage = (burnedAreaCounter / (completeArea/7)) * 100;
-    percentage = percentage<100 ? 100 : percentage;
+    percentage = percentage < 100 ? percentage : 100;
 	string percentStr = "Burned area: ";
 	percentStr += std::to_string(percentage);
 	percentStr += " %";
