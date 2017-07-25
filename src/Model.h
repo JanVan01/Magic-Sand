@@ -25,6 +25,7 @@ public:
     void addNewFire();
     void addNewFire(ofVec2f fireSpawnPos);
     void addNewFire(ofVec2f fireSpawnPos, float angle);
+    void addNewFireInRiskZone();
 
     void calculateRiskZones();
 	void drawRiskZones();
@@ -43,7 +44,7 @@ private:
     
     vector<Fire> fires;
     vector<Fire> embers;
-    vector< vector<bool> > riskZones;
+	vector<ofVec2f> riskZones;
     vector< vector<bool> > burnedArea;
     
     float windSpeed;
