@@ -30,6 +30,7 @@ public:
 	void drawRiskZones();
 	
 	int getNumberOfAgents();
+	int getTimestep();
 	string getPercentageOfBurnedArea();
 
     void update();

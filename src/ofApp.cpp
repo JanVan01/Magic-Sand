@@ -179,13 +179,8 @@ void ofApp::setStatistics() {
 	// Set model information
 	gui2->getValuePlotter("Fire intensity")->setValue(model->getNumberOfAgents());
 	gui2->getLabel("Burned Area:")->setLabel(model->getPercentageOfBurnedArea());
-	stopWatch();
-	gui2->getLabel("Runtime: Model not running")->setLabel(time);
-}
-
-void ofApp::stopWatch() {
-	duration = (std::clock() - startTime) / (double)CLOCKS_PER_SEC;
-	time = "Time: " + std::to_string(int(duration)) + " seconds";
+	time = "Timestep: " + std::to_string(model->getTimestep()) + " steps";
+	gui2->getLabel("Timestep: Model not running")->setLabel(time);
 }
 
 void ofApp::keyPressed(int key) {
@@ -257,7 +252,7 @@ void ofApp::setupGui(){
 	// Fire statistics GUI
 	gui2 = new ofxDatGui();
 	gui2->setTheme(new ofxDatGuiThemeAqua());
-	gui2->addLabel("Runtime: Model not running");
+	gui2->addLabel("Timestep: Model not running");
 	ofxDatGuiValuePlotter* areaBurnedPlot = gui2->addValuePlotter("Fire intensity", 0, 150);	
 	gui2->addLabel("Burned area:");
 	gui2->addHeader(":: Fire statistics::", false);
@@ -274,7 +269,7 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e) {
 		if (gui->getButton("Start fire")->getLabel() == "Start fire") {
 			runstate = true;
 			// Initialize clock for stopwatch
-			startTime = std::clock();
+			//startTime = std::clock();
 			// Clear vehicles FBO of target arrow
 			fboVehicles.begin();
 			ofClear(0, 0, 0, 0);
@@ -286,7 +281,7 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e) {
 		else if (gui->getButton("Start fire")->getLabel() == "Pause") {
 			runstate = false;
 			gui->getButton("Start fire")->setLabel("Resume");
-			gui2->getLabel("Runtime: Model not running")->setLabel(time + " paused");
+			gui2->getLabel("Timestep: Model not running")->setLabel(time + " paused");
 		}
 		else if (gui->getButton("Start fire")->getLabel() == "Resume") {
 			runstate = true;
@@ -301,7 +296,7 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e) {
 		fboVehicles.end();
 		gui->getButton("Start fire")->setLabel("Start fire");
 		gui->get2dPad("Fire position")->reset();
-		gui2->getLabel("Runtime: Model not running")->setLabel("Runtime: Model not running");
+		gui2->getLabel("Timestep: Model not running")->setLabel("Timestep: Model not running");
 		firePos.set(kinectROI.width / 2, kinectROI.height / 2);
 		runstate = false;
 		
