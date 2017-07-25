@@ -223,7 +223,7 @@ void Model::drawRiskZones() {
 
 string Model::getPercentageOfBurnedArea(){
 	float percentage = (burnedAreaCounter / (completeArea/7)) * 100;
-    percentage = percentage < 100 ? percentage : 100;
+  percentage = percentage > 100 ? 100 : percentage;
 	string percentStr = "Burned area: ";
 	percentStr += std::to_string(percentage);
 	percentStr += " %";

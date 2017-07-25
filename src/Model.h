@@ -51,7 +51,7 @@ private:
     int timestep;
 
 	int burnedAreaCounter;
-	int completeArea;
+	float completeArea;
 
     bool setRandomVehicleLocation(ofRectangle area, bool liveInWater, ofVec2f & location);
 
