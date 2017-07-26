@@ -184,8 +184,9 @@ void Model::calculateRiskZones() {
 			//calculation of slopes >= 10 degrees
 			cell_slope = atan(sqrt(pow(changeRateInXDirection, 2) + pow(changeRateInYDirection, 2))) * (180 / PI);
 
+
 			//identification of risk zones
-			if (cell_aspect >= 157.5 && cell_aspect <= 202.5 && cell_slope >= 10) {
+			if (cell_aspect >= 157.5 && cell_aspect <= 202.5 && cell_slope >= 10 && e > 0) {
 				riskZones.push_back(ofVec2f(x, y));
 			}
 		}
