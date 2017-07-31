@@ -53,35 +53,20 @@ void Vehicle::updateBeachDetection(){
     }
 }
 
-ofPoint Vehicle::bordersEffect(){
-    ofPoint desired, futureLocation;
-    
+void Vehicle::updateBorderDetection(){
     // Predict location 10 (arbitrary choice) frames ahead
-    futureLocation = location + velocity*10;
+    ofPoint futureLocation = location + velocity*10;
     
-    ofPoint target = location;
     if (!internalBorders.inside(futureLocation)){ // Go to the opposite direction
         border = true;
-        if (futureLocation.x < internalBorders.getLeft())
-            target.x = borders.getRight();
-        if (futureLocation.y < internalBorders.getTop())
-            target.y = borders.getBottom();
-        if (futureLocation.x > internalBorders.getRight())
-            target.x = borders.getLeft();
-        if (futureLocation.y > internalBorders.getBottom())
-            target.y = borders.getTop();
     } else {
         border = false;
     }
-    
-    //desired = target - location;
-    //desired.normalize();
-    //desired *= topSpeed;
-    
-    ofPoint velocityChange(0);
-    //velocityChange = desired - velocity;
-    //velocityChange.limit(maxVelocityChange);
-    return velocityChange;
+}
+
+ofPoint Vehicle::angleToVector(float angle){
+    float radian = ofDegToRad(angle);
+    return ofVec2f(cos(radian), sin(radian));
 }
 
 ofPoint Vehicle::wanderEffect(){
@@ -108,84 +93,6 @@ ofPoint Vehicle::wanderEffect(){
     velocityChange.limit(maxVelocityChange);
     return velocityChange;
 }
-
-/**
- * @fn	ofPoint Vehicle::hillEffect()
- *
- * @brief	Determines the effect of the topography.
- *
- * @return	An velocity vector.
- */
-
-ofPoint Vehicle::hillEffect() {
-	ofPoint velocityChange, futureLocation, currentLocation;
-	float futureelevation, currentelevation;
-
-	currentLocation = location;
-	futureLocation = location + velocity * 10;
-	currentelevation = kinectProjector->elevationAtKinectCoord(currentLocation.x, currentLocation.y);
-	futureelevation = kinectProjector->elevationAtKinectCoord(futureLocation.x, futureLocation.y);
-
-
-	float currDir = ofDegToRad(angle);
-	ofPoint front = ofVec2f(cos(currDir), sin(currDir));
-	front.normalize();
-
-	if (currentelevation > futureelevation) {
-		// Inverse Direction when moving downhill,
-		front *= -1;
-		// limits the direction change in one step, so the fire does not change the direction immediately
-		ofPoint dirChange = front.limit(maxVelocityChange);
-		return dirChange;
-	}
-	if (currentelevation < futureelevation) {
-		// Increase Speed when moving uphill
-		front *= 3;
-		return front;
-	}
-	if (currentelevation == futureelevation) {
-		// no effect when moving on a plane
-		return ofPoint(0);
-	}
-}
-
-/**
- * @fn	ofPoint Vehicle::windEffect(float windspeed, float winddirection)
- *
- * @brief	Calculates the effect of the wind.
- *
- * @param	windspeed	 	The windspeed.
- * @param	winddirection	The winddirection.
- *
- * @return	An velocity vector.
- */
-
-ofPoint Vehicle::windEffect(float windspeed, float winddirection) {
-	ofPoint velocityChange;
-	int windForce;
-	// Sets factor for the wind speed
-	if (windspeed > 1) {
-		windForce = 1.25;
-	} else if (windspeed > 4) {
-		windForce = 1.5;
-	} else if (windspeed > 6) {
-		windForce = 1.75;
-	} else if (windspeed > 8) {
-		windForce = 2;
-	} else {
-		windForce = 0;
-	}
-
-	// Calculates the direction change
-	float windDir = ofDegToRad(winddirection);
-	ofPoint desired = ofVec2f(cos(windDir), sin(windDir));
-	// Normalisation of the vector so that it only influences the direction
-	desired.normalize();
-	desired *= windForce;
-
-	return desired.limit(maxVelocityChange);
-}
-
 
 ofPoint Vehicle::slopesEffect(){
     ofPoint desired, velocityChange;
@@ -269,13 +176,14 @@ ofPoint Fire::wanderEffect(){
 	// Randomly change wander theta
     wandertheta = ofRandom(-change,change);     
     
-    float currDir = ofDegToRad(angle);
-    ofPoint front = ofVec2f(cos(currDir), sin(currDir));
+    ofPoint front = angleToVector(angle);
     
     front.normalize();
     front *= wanderD;
     ofPoint circleloc = location + front;
     
+
+    float currDir = ofDegToRad(angle);
     ofPoint circleOffSet = ofPoint(wanderR*cos(wandertheta+currDir),wanderR*sin(wandertheta+currDir));
     ofPoint target = circleloc + circleOffSet;
     
@@ -289,8 +197,89 @@ ofPoint Fire::wanderEffect(){
     return velocityChange;
 }
 
-void Fire::applyBehaviours() {
+/**
+ * @fn	ofPoint Fire::hillEffect()
+ *
+ * @brief	Determines the effect of the topography.
+ *
+ * @return	An velocity vector.
+ */
 
+ofPoint Fire::hillEffect() {
+    ofPoint velocityChange, futureLocation, currentLocation;
+    float futureelevation, currentelevation;
+    
+    currentLocation = location;
+    futureLocation = location + velocity * 10;
+    currentelevation = kinectProjector->elevationAtKinectCoord(currentLocation.x, currentLocation.y);
+    futureelevation = kinectProjector->elevationAtKinectCoord(futureLocation.x, futureLocation.y);
+    
+    
+    float currDir = ofDegToRad(angle);
+    ofPoint front = ofVec2f(cos(currDir), sin(currDir));
+    front.normalize();
+    
+    if (currentelevation > futureelevation) {
+        // Inverse Direction when moving downhill,
+        front *= -1;
+        // limits the direction change in one step, so the fire does not change the direction immediately
+        ofPoint dirChange = front.limit(maxVelocityChange);
+        return dirChange;
+    }
+    if (currentelevation < futureelevation) {
+        // Increase Speed when moving uphill
+        front *= 3;
+        return front;
+    }
+    if (currentelevation == futureelevation) {
+        // no effect when moving on a plane
+        return ofPoint(0);
+    }
+}
+
+/**
+ * @fn	ofPoint Fire::windEffect(float windspeed, float winddirection)
+ *
+ * @brief	Calculates the effect of the wind.
+ *
+ * @param	windspeed	 	The windspeed.
+ * @param	winddirection	The winddirection.
+ *
+ * @return	An velocity vector.
+ */
+
+ofPoint Fire::windEffect(float windspeed, float winddirection) {
+    ofPoint velocityChange;
+    int windForce;
+    // Sets factor for the wind speed
+    if (windspeed > 1) {
+        windForce = 1.25;
+    } else if (windspeed > 4) {
+        windForce = 1.5;
+    } else if (windspeed > 6) {
+        windForce = 1.75;
+    } else if (windspeed > 8) {
+        windForce = 2;
+    } else {
+        windForce = 0;
+    }
+    
+    ofPoint desired = angleToVector(winddirection);
+    // Normalisation of the vector so that it only influences the direction
+    desired.normalize();
+    desired *= windForce;
+    
+    return desired.limit(maxVelocityChange);
+}
+
+/**
+ * @fn	void Fire::applyBehaviours()
+ *
+ * @brief	Calls applyBehaviours with default values.
+ */
+
+void Fire::applyBehaviours() {
+    applyBehaviours(0,0);
 }
 
 /**
@@ -304,50 +293,40 @@ void Fire::applyBehaviours() {
  
 void Fire::applyBehaviours(float windspeed, float winddirection) {
     updateBeachDetection();
-    // Function calls for the different effects
-	windF = windEffect(windspeed, winddirection);
-    bordersF = bordersEffect();
-    slopesF = slopesEffect();
-    wanderF = wanderEffect();
-	hillF = hillEffect();
+    updateBorderDetection();
     
-    ofPoint littleSlopeF = slopesF;
-    
-	// Balancing of the different effects
-    bordersF *=0.5;
-    slopesF *= 2;
-    wanderF *= 1;
-    littleSlopeF *= 1;
+    ofVec2f wanderF = wanderEffect();
+    ofVec2f hillF = hillEffect();
+    ofVec2f windF = windEffect(windspeed, winddirection);
+
+    wanderF *= 1;// Used to introduce some randomness in the direction changes
 	hillF *= 3;
 	windF *= 0.6;
     
-    float currDir = ofDegToRad(angle);
-    ofPoint oldDir = ofVec2f(cos(currDir), sin(currDir));
+    ofPoint oldDir = angleToVector(angle);
     oldDir.scale(velocityIncreaseStep);
+    
 	ofPoint newDir;
 	newDir += wanderF;
 	newDir += hillF;
 	newDir += windF;
 
-    
-	if (beach)
+    if (beach) {
         oldDir.scale(velocityIncreaseStep/beachDist);
-
-	if (!beach && !border)
-		{   
-		applyVelocityChange(newDir);
-		applyVelocityChange(oldDir); // Just accelerate
-		} else { // Wee need to decelerate and then change direction
-		    if (velocity.lengthSquared() > minVelocity*minVelocity) // We are not stopped yet
-		    {
-		        applyVelocityChange(-oldDir); // Just deccelerate
-				applyVelocityChange(-newDir);
-		    }  else {
-				// Stops the Fire agent
-				velocity = ofPoint(0);
-				alive = false;
-			}
-		}
+    }
+    if (!beach && !border){
+        applyVelocityChange(newDir);
+        applyVelocityChange(oldDir); // Just accelerate
+    } else { // We need to decelerate and then change direction
+        if (velocity.lengthSquared() > minVelocity*minVelocity){ // We are not stopped yet
+            applyVelocityChange(-oldDir); // Just deccelerate
+            applyVelocityChange(-newDir);
+        }  else {
+            // Stops the Fire agent
+            velocity = ofPoint(0);
+            alive = false;
+        }
+    }
 }
 
 /**
@@ -390,7 +369,13 @@ void Fire::kill(){
 }
 
 ofColor Fire::getFlameColor(){
-    float intensityFactor = intensity <= 0 ? 0 : intensity * 0.33;
+    float intensityFactor;
+    if (intensity <= 0){
+        intensityFactor = 0;
+    } else {
+        intensityFactor = intensity * 0.33;
+    }
+
     int red = 255 * intensityFactor;
     int green = 64 * intensityFactor;
     int blue = 0 * intensityFactor;
