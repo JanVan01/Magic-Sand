@@ -109,7 +109,13 @@ ofPoint Vehicle::wanderEffect(){
     return velocityChange;
 }
 
-// Determine Elevation and return velocity change depending on Height
+/**
+ * @fn	ofPoint Vehicle::hillEffect()
+ *
+ * @brief	Determines the effect of the topography.
+ *
+ * @return	An velocity vector.
+ */
 
 ofPoint Vehicle::hillEffect() {
 	ofPoint velocityChange, futureLocation, currentLocation;
@@ -139,6 +145,17 @@ ofPoint Vehicle::hillEffect() {
 		return ofPoint(0);
 	}
 }
+
+/**
+ * @fn	ofPoint Vehicle::windEffect(float windspeed, float winddirection)
+ *
+ * @brief	Calculates the effect of the wind.
+ *
+ * @param	windspeed	 	The windspeed.
+ * @param	winddirection	The winddirection.
+ *
+ * @return	An velocity vector.
+ */
 
 ofPoint Vehicle::windEffect(float windspeed, float winddirection) {
 	ofPoint velocityChange;
@@ -188,7 +205,14 @@ ofPoint Vehicle::slopesEffect(){
 void Vehicle::applyVelocityChange(const ofPoint & velocityChange){
     globalVelocityChange += velocityChange;
 }
-// Movement: vehicle update rotation ...
+
+/**
+ * @fn	void Vehicle::update()
+ *
+ * @brief	Updates this vehicle.
+ *
+ */
+
 void Vehicle::update(){
     projectorCoord = kinectProjector->kinectCoordToProjCoord(location.x, location.y);
     velocity += globalVelocityChange;
@@ -228,12 +252,21 @@ void Fire::setup(){
     intensity = 3;
 	alive = true;
 }
-// Rotation vom Rabbit : Simon
+
+/**
+ * @fn	ofPoint Fire::wanderEffect()
+ *
+ * @brief	Wander effect that introduces some randomness to the agents.
+ *
+ *
+ * @return	An velocity vector.
+ */
+
 ofPoint Fire::wanderEffect(){
     
     ofPoint velocityChange, desired;
-    
-    wandertheta = ofRandom(-change,change);     // Randomly change wander theta
+	// Randomly change wander theta
+    wandertheta = ofRandom(-change,change);     
     
     float currDir = ofDegToRad(angle);
     ofPoint front = ofVec2f(cos(currDir), sin(currDir));
@@ -241,9 +274,6 @@ ofPoint Fire::wanderEffect(){
     front.normalize();
     front *= wanderD;
     ofPoint circleloc = location + front;
-    
-   // float h = ofradtodeg(atan2(front.x,front.y));
-  	//float h = front.angle(ofvec2f(1,0)); // we need to know the heading to offset wandertheta
     
     ofPoint circleOffSet = ofPoint(wanderR*cos(wandertheta+currDir),wanderR*sin(wandertheta+currDir));
     ofPoint target = circleloc + circleOffSet;
@@ -257,10 +287,19 @@ ofPoint Fire::wanderEffect(){
     
     return velocityChange;
 }
-// Forces : seekF, bordersF, slopesF, wanderF, ==> Temp, Wind, Humid, ... hier mögl.
+
 void Fire::applyBehaviours() {
 
 }
+
+/**
+ * @fn	void Fire::applyBehaviours(float windspeed, float winddirection)
+ *
+ * @brief	Applies the behaviours to the agent.
+ *
+ * @param	windspeed	 	The windspeed.
+ * @param	winddirection	The winddirection.
+ */
 
 void Fire::applyBehaviours(float windspeed, float winddirection) {
     updateBeachDetection();
@@ -310,6 +349,13 @@ void Fire::applyBehaviours(float windspeed, float winddirection) {
 		}
 }
 
+/**
+ * @fn	void Fire::draw()
+ *
+ * @brief	Draws the fire agent.
+ *
+ */
+
 void Fire::draw(){
     if(!alive){
         intensity--;
@@ -325,9 +371,9 @@ void Fire::draw(){
     ofFill();
     
     ofPath flame;
-    flame.arc(0,-3*sc,3*sc,3*sc,90,270);
-    flame.arc(0,-5*sc,sc,sc,90,270);
-    flame.arc(0,-2*sc,2*sc,2*sc,270,90);
+    flame.arc(0, -3 * sc, 3 * sc, 3 * sc, 90, 270);
+    flame.arc(0, -5 * sc, sc, sc, 90, 270);
+    flame.arc(0, -2 * sc, 2 * sc, 2 * sc, 270, 90);
     flame.setFillColor(color);
     flame.setStrokeWidth(0);
     flame.draw();
@@ -343,7 +389,7 @@ void Fire::kill(){
 }
 
 ofColor Fire::getFlameColor(){
-    float intensityFactor = intensity <= 0 ? 0 : intensity*0.33;
+    float intensityFactor = intensity <= 0 ? 0 : intensity * 0.33;
     int red = 255 * intensityFactor;
     int green = 64 * intensityFactor;
     int blue = 0 * intensityFactor;

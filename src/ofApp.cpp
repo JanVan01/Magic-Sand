@@ -21,12 +21,17 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 #include "ofApp.h"
 
+/**
+ * @fn	void ofApp::setup()
+ *
+ * @brief	Setups for the Interface.
+ *
+ */
+
 void ofApp::setup() {
-	// OF basics
 	ofSetFrameRate(15);
 	ofBackground(0);
 	ofSetVerticalSync(true);
-//	ofSetLogLevel(OF_LOG_VERBOSE);
 	ofSetLogLevel("ofThread", OF_LOG_WARNING);
 
 	// Setup kinectProjector
@@ -75,6 +80,13 @@ void ofApp::setup() {
 	setupGui();
 }
 
+/**
+ * @fn	void ofApp::update()
+ *
+ * @brief	Update call.
+ *
+ */
+
 void ofApp::update() {
     // Call kinectProjector->update() first during the update function()
 	kinectProjector->update();
@@ -102,6 +114,13 @@ void ofApp::update() {
 	}
 	gui->update();
 }
+
+/**
+ * @fn	void ofApp::draw()
+ *
+ * @brief	Draws main window and gui.
+ *
+ */
 
 void ofApp::draw() {
     drawMainWindow(300, 30, 600, 450);
@@ -235,6 +254,13 @@ void ofApp::gotMessage(ofMessage msg) {
 void ofApp::dragEvent(ofDragInfo dragInfo) {
 
 }
+
+/**
+ * @fn	void ofApp::setupGui()
+ *
+ * @brief	Sets up the graphical user interface.
+ *
+ */
 
 void ofApp::setupGui(){
 	
