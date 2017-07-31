@@ -109,7 +109,14 @@ ofPoint Vehicle::wanderEffect(){
     return velocityChange;
 }
 
-// Effect to change the speed of the agent depending on topography
+/**
+ * @fn	ofPoint Vehicle::hillEffect()
+ *
+ * @brief	Determines the effect of the topography.
+ *
+ * @return	An velocity vector.
+ */
+
 ofPoint Vehicle::hillEffect() {
 	ofPoint velocityChange, futureLocation, currentLocation;
 	float futureelevation, currentelevation;
@@ -142,7 +149,17 @@ ofPoint Vehicle::hillEffect() {
 	}
 }
 
-// Calculates a vector for the effect of the wind.
+/**
+ * @fn	ofPoint Vehicle::windEffect(float windspeed, float winddirection)
+ *
+ * @brief	Calculates the effect of the wind.
+ *
+ * @param	windspeed	 	The windspeed.
+ * @param	winddirection	The winddirection.
+ *
+ * @return	An velocity vector.
+ */
+
 ofPoint Vehicle::windEffect(float windspeed, float winddirection) {
 	ofPoint velocityChange;
 	int windForce;
@@ -188,7 +205,14 @@ ofPoint Vehicle::slopesEffect(){
 void Vehicle::applyVelocityChange(const ofPoint & velocityChange){
     globalVelocityChange += velocityChange;
 }
-// Movement: vehicle update rotation ...
+
+/**
+ * @fn	void Vehicle::update()
+ *
+ * @brief	Updates this vehicle.
+ *
+ */
+
 void Vehicle::update(){
     projectorCoord = kinectProjector->kinectCoordToProjCoord(location.x, location.y);
     velocity += globalVelocityChange;
@@ -229,7 +253,16 @@ void Fire::setup(){
 	alive = true;
 }
 
-// Effect introduce some randomness in the direction changes
+
+/**
+ * @fn	ofPoint Fire::wanderEffect()
+ *
+ * @brief	Wander effect that introduces some randomness to the agents.
+ *
+ *
+ * @return	An velocity vector.
+ */
+
 ofPoint Fire::wanderEffect(){
     
     ofPoint velocityChange, desired;
@@ -256,11 +289,19 @@ ofPoint Fire::wanderEffect(){
     return velocityChange;
 }
 
-
 void Fire::applyBehaviours() {
 
 }
-// Function that applies the different forces that effect the agent
+
+/**
+ * @fn	void Fire::applyBehaviours(float windspeed, float winddirection)
+ *
+ * @brief	Applies the behaviours to the agent.
+ *
+ * @param	windspeed	 	The windspeed.
+ * @param	winddirection	The winddirection.
+ */
+ 
 void Fire::applyBehaviours(float windspeed, float winddirection) {
     updateBeachDetection();
     // Function calls for the different effects
@@ -309,6 +350,13 @@ void Fire::applyBehaviours(float windspeed, float winddirection) {
 		}
 }
 
+/**
+ * @fn	void Fire::draw()
+ *
+ * @brief	Draws the fire agent.
+ *
+ */
+
 void Fire::draw(){
     if(!alive){
         intensity--;
@@ -324,9 +372,9 @@ void Fire::draw(){
     ofFill();
     
     ofPath flame;
-    flame.arc(0,-3*sc,3*sc,3*sc,90,270);
-    flame.arc(0,-5*sc,sc,sc,90,270);
-    flame.arc(0,-2*sc,2*sc,2*sc,270,90);
+    flame.arc(0, -3 * sc, 3 * sc, 3 * sc, 90, 270);
+    flame.arc(0, -5 * sc, sc, sc, 90, 270);
+    flame.arc(0, -2 * sc, 2 * sc, 2 * sc, 270, 90);
     flame.setFillColor(color);
     flame.setStrokeWidth(0);
     flame.draw();
@@ -342,7 +390,7 @@ void Fire::kill(){
 }
 
 ofColor Fire::getFlameColor(){
-    float intensityFactor = intensity <= 0 ? 0 : intensity*0.33;
+    float intensityFactor = intensity <= 0 ? 0 : intensity * 0.33;
     int red = 255 * intensityFactor;
     int green = 64 * intensityFactor;
     int blue = 0 * intensityFactor;
