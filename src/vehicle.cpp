@@ -267,11 +267,7 @@ void Fire::applyBehaviours() {
 }
 
 void Fire::applyBehaviours(float windspeed, float winddirection) {
-    if (kinectProjector->elevationAtKinectCoord(location.x, location.y) < 0
-        || !internalBorders.inside(location)){
-        alive == false;
-        return;
-    }
+    updateBeachDetection();
     
     ofVec2f wanderF = wanderEffect();
     ofVec2f hillF = hillEffect();
@@ -288,8 +284,22 @@ void Fire::applyBehaviours(float windspeed, float winddirection) {
 	newDir += hillF;
 	newDir += windF;
 
-    applyVelocityChange(newDir);
-    applyVelocityChange(oldDir);
+    if (beach) {
+        oldDir.scale(velocityIncreaseStep/beachDist);
+    }
+    if (!beach && !border){
+        applyVelocityChange(newDir);
+        applyVelocityChange(oldDir); // Just accelerate
+    } else { // We need to decelerate and then change direction
+        if (velocity.lengthSquared() > minVelocity*minVelocity){ // We are not stopped yet
+            applyVelocityChange(-oldDir); // Just deccelerate
+            applyVelocityChange(-newDir);
+        }  else {
+            // Stops the Fire agent
+            velocity = ofPoint(0);
+            alive = false;
+        }
+    }
 }
 
 void Fire::draw(){
