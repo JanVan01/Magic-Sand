@@ -130,9 +130,11 @@ ofPoint Vehicle::hillEffect() {
 	float currDir = ofDegToRad(angle);
 	ofPoint front = ofVec2f(cos(currDir), sin(currDir));
 	front.normalize();
+
 	if (currentelevation > futureelevation) {
-		// Inverse Direction when moving downhill
+		// Inverse Direction when moving downhill,
 		front *= -1;
+		// limits the direction change in one step, so the fire does not change the direction immediately
 		ofPoint dirChange = front.limit(maxVelocityChange);
 		return dirChange;
 	}
@@ -142,6 +144,7 @@ ofPoint Vehicle::hillEffect() {
 		return front;
 	}
 	if (currentelevation == futureelevation) {
+		// no effect when moving on a plane
 		return ofPoint(0);
 	}
 }
@@ -159,13 +162,8 @@ ofPoint Vehicle::hillEffect() {
 
 ofPoint Vehicle::windEffect(float windspeed, float winddirection) {
 	ofPoint velocityChange;
-	int directionOfWind = (int)winddirection;
-	int inverseWinddirection = (directionOfWind - 180) % 360;
-	int directionOfFire = (int)angle;
-	int positiveRangeFire = (directionOfFire + 45) % 360;
-	int negativeRangeFire = (directionOfFire - 45) % 360;
 	int windForce;
-	// set Factor for velocityChange
+	// Sets factor for the wind speed
 	if (windspeed > 1) {
 		windForce = 1.25;
 	} else if (windspeed > 4) {
@@ -178,8 +176,10 @@ ofPoint Vehicle::windEffect(float windspeed, float winddirection) {
 		windForce = 0;
 	}
 
+	// Calculates the direction change
 	float windDir = ofDegToRad(winddirection);
 	ofPoint desired = ofVec2f(cos(windDir), sin(windDir));
+	// Normalisation of the vector so that it only influences the direction
 	desired.normalize();
 	desired *= windForce;
 
@@ -237,7 +237,7 @@ void Fire::setup(){
     minborderDist = 50;
     internalBorders = borders;
     internalBorders.scaleFromCenter((borders.width-minborderDist)/borders.width, (borders.height-minborderDist)/borders.height);
-    
+    // Randomness parameters
     wanderR = 50;         // Radius for our "wander circle"
     wanderD = 0;         // Distance for our "wander circle"
     change = 1;
@@ -252,6 +252,7 @@ void Fire::setup(){
     intensity = 3;
 	alive = true;
 }
+
 
 /**
  * @fn	ofPoint Fire::wanderEffect()
@@ -300,10 +301,10 @@ void Fire::applyBehaviours() {
  * @param	windspeed	 	The windspeed.
  * @param	winddirection	The winddirection.
  */
-
+ 
 void Fire::applyBehaviours(float windspeed, float winddirection) {
     updateBeachDetection();
-    
+    // Function calls for the different effects
 	windF = windEffect(windspeed, winddirection);
     bordersF = bordersEffect();
     slopesF = slopesEffect();
@@ -312,10 +313,10 @@ void Fire::applyBehaviours(float windspeed, float winddirection) {
     
     ofPoint littleSlopeF = slopesF;
     
-
+	// Balancing of the different effects
     bordersF *=0.5;
-    slopesF *= 2;//2;
-    wanderF *= 1;// Used to introduce some randomness in the direction changes
+    slopesF *= 2;
+    wanderF *= 1;
     littleSlopeF *= 1;
 	hillF *= 3;
 	windF *= 0.6;

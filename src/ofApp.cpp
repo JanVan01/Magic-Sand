@@ -193,7 +193,7 @@ void ofApp::drawPositioningTarget(ofVec2f firePos)
     target.moveTo(5 * scale, 0);
     target.lineTo(-5 *scale, 0);
     
-    target.setStrokeColor(ofColor::red);
+    target.setStrokeColor(ofColor::black);
     target.setStrokeWidth(2);
     target.setFilled(false);
     
@@ -338,6 +338,7 @@ void ofApp::onButtonEvent(ofxDatGuiButtonEvent e) {
 		gui2->getLabel("Timestep: Model not running")->setLabel("Timestep: Model not running");
 		gui2->getLabel("Burned area:")->setLabel("Burned area:");
 		firePos.set(kinectROI.width / 2, kinectROI.height / 2);
+		gui2->getValuePlotter("Fire intensity")->setValue(0);
 		runstate = false;
 		
 	}
