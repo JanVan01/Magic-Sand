@@ -53,40 +53,20 @@ void Vehicle::updateBeachDetection(){
     }
 }
 
-ofPoint Vehicle::angleToVector(float angle){
-    float radian = ofDegToRad(angle);
-    return ofVec2f(cos(radian), sin(radian));
-}
-
-ofPoint Vehicle::bordersEffect(){
-    ofPoint desired, futureLocation;
-    
+void Vehicle::updateBorderDetection(){
     // Predict location 10 (arbitrary choice) frames ahead
-    futureLocation = location + velocity*10;
+    ofPoint futureLocation = location + velocity*10;
     
-    ofPoint target = location;
     if (!internalBorders.inside(futureLocation)){ // Go to the opposite direction
         border = true;
-        if (futureLocation.x < internalBorders.getLeft())
-            target.x = borders.getRight();
-        if (futureLocation.y < internalBorders.getTop())
-            target.y = borders.getBottom();
-        if (futureLocation.x > internalBorders.getRight())
-            target.x = borders.getLeft();
-        if (futureLocation.y > internalBorders.getBottom())
-            target.y = borders.getTop();
     } else {
         border = false;
     }
-    
-    //desired = target - location;
-    //desired.normalize();
-    //desired *= topSpeed;
-    
-    ofPoint velocityChange(0);
-    //velocityChange = desired - velocity;
-    //velocityChange.limit(maxVelocityChange);
-    return velocityChange;
+}
+
+ofPoint Vehicle::angleToVector(float angle){
+    float radian = ofDegToRad(angle);
+    return ofVec2f(cos(radian), sin(radian));
 }
 
 ofPoint Vehicle::wanderEffect(){
@@ -267,11 +247,11 @@ void Fire::applyBehaviours() {
 // Function that applies the different forces that effect the agent
 void Fire::applyBehaviours(float windspeed, float winddirection) {
     updateBeachDetection();
+    updateBorderDetection();
     
     ofVec2f wanderF = wanderEffect();
     ofVec2f hillF = hillEffect();
     ofVec2f windF = windEffect(windspeed, winddirection);
-    ofVec2f bordersF = bordersEffect();
 
     wanderF *= 1;// Used to introduce some randomness in the direction changes
 	hillF *= 3;

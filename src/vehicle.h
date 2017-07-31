@@ -51,8 +51,9 @@ public:
     
 protected:
     void updateBeachDetection();
+    void updateBorderDetection();
     ofPoint angleToVector(float angle);
-    ofPoint bordersEffect();
+
     ofPoint slopesEffect();
 	ofPoint hillEffect();
 	ofPoint windEffect(float windspeed, float winddirection);
