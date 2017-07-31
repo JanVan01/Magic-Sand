@@ -109,8 +109,7 @@ ofPoint Vehicle::wanderEffect(){
     return velocityChange;
 }
 
-// Determine Elevation and return velocity change depending on Height
-
+// Effect to change the speed of the agent depending on topography
 ofPoint Vehicle::hillEffect() {
 	ofPoint velocityChange, futureLocation, currentLocation;
 	float futureelevation, currentelevation;
@@ -124,9 +123,11 @@ ofPoint Vehicle::hillEffect() {
 	float currDir = ofDegToRad(angle);
 	ofPoint front = ofVec2f(cos(currDir), sin(currDir));
 	front.normalize();
+
 	if (currentelevation > futureelevation) {
-		// Inverse Direction when moving downhill
+		// Inverse Direction when moving downhill,
 		front *= -1;
+		// limits the direction change in one step, so the fire does not change the direction immediately
 		ofPoint dirChange = front.limit(maxVelocityChange);
 		return dirChange;
 	}
@@ -136,19 +137,16 @@ ofPoint Vehicle::hillEffect() {
 		return front;
 	}
 	if (currentelevation == futureelevation) {
+		// no effect when moving on a plane
 		return ofPoint(0);
 	}
 }
 
+// Calculates a vector for the effect of the wind.
 ofPoint Vehicle::windEffect(float windspeed, float winddirection) {
 	ofPoint velocityChange;
-	int directionOfWind = (int)winddirection;
-	int inverseWinddirection = (directionOfWind - 180) % 360;
-	int directionOfFire = (int)angle;
-	int positiveRangeFire = (directionOfFire + 45) % 360;
-	int negativeRangeFire = (directionOfFire - 45) % 360;
 	int windForce;
-	// set Factor for velocityChange
+	// Sets factor for the wind speed
 	if (windspeed > 1) {
 		windForce = 1.25;
 	} else if (windspeed > 4) {
@@ -161,8 +159,10 @@ ofPoint Vehicle::windEffect(float windspeed, float winddirection) {
 		windForce = 0;
 	}
 
+	// Calculates the direction change
 	float windDir = ofDegToRad(winddirection);
 	ofPoint desired = ofVec2f(cos(windDir), sin(windDir));
+	// Normalisation of the vector so that it only influences the direction
 	desired.normalize();
 	desired *= windForce;
 
@@ -213,7 +213,7 @@ void Fire::setup(){
     minborderDist = 50;
     internalBorders = borders;
     internalBorders.scaleFromCenter((borders.width-minborderDist)/borders.width, (borders.height-minborderDist)/borders.height);
-    
+    // Randomness parameters
     wanderR = 50;         // Radius for our "wander circle"
     wanderD = 0;         // Distance for our "wander circle"
     change = 1;
@@ -228,12 +228,13 @@ void Fire::setup(){
     intensity = 3;
 	alive = true;
 }
-// Rotation vom Rabbit : Simon
+
+// Effect introduce some randomness in the direction changes
 ofPoint Fire::wanderEffect(){
     
     ofPoint velocityChange, desired;
-    
-    wandertheta = ofRandom(-change,change);     // Randomly change wander theta
+	// Randomly change wander theta
+    wandertheta = ofRandom(-change,change);     
     
     float currDir = ofDegToRad(angle);
     ofPoint front = ofVec2f(cos(currDir), sin(currDir));
@@ -241,9 +242,6 @@ ofPoint Fire::wanderEffect(){
     front.normalize();
     front *= wanderD;
     ofPoint circleloc = location + front;
-    
-   // float h = ofradtodeg(atan2(front.x,front.y));
-  	//float h = front.angle(ofvec2f(1,0)); // we need to know the heading to offset wandertheta
     
     ofPoint circleOffSet = ofPoint(wanderR*cos(wandertheta+currDir),wanderR*sin(wandertheta+currDir));
     ofPoint target = circleloc + circleOffSet;
@@ -257,14 +255,15 @@ ofPoint Fire::wanderEffect(){
     
     return velocityChange;
 }
-// Forces : seekF, bordersF, slopesF, wanderF, ==> Temp, Wind, Humid, ... hier mögl.
+
+
 void Fire::applyBehaviours() {
 
 }
-
+// Function that applies the different forces that effect the agent
 void Fire::applyBehaviours(float windspeed, float winddirection) {
     updateBeachDetection();
-    
+    // Function calls for the different effects
 	windF = windEffect(windspeed, winddirection);
     bordersF = bordersEffect();
     slopesF = slopesEffect();
@@ -273,10 +272,10 @@ void Fire::applyBehaviours(float windspeed, float winddirection) {
     
     ofPoint littleSlopeF = slopesF;
     
-
+	// Balancing of the different effects
     bordersF *=0.5;
-    slopesF *= 2;//2;
-    wanderF *= 1;// Used to introduce some randomness in the direction changes
+    slopesF *= 2;
+    wanderF *= 1;
     littleSlopeF *= 1;
 	hillF *= 3;
 	windF *= 0.6;
