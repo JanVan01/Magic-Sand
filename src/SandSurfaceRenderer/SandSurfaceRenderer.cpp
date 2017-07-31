@@ -288,7 +288,8 @@ void SandSurfaceRenderer::setupGui(){
     saveModal->addListener(this, &SandSurfaceRenderer::onSaveModalEvent);
     
     // instantiate the gui //
-    gui2 = new ofxDatGui( ofxDatGuiAnchor::TOP_LEFT );
+    gui2 = new ofxDatGui( ofxDatGuiAnchor::BOTTOM_LEFT );
+	gui2->setTheme(new ofxDatGuiThemeAqua());
     gui2->addToggle("Contour lines", drawContourLines)->setStripeColor(ofColor::blue);
     gui2->addSlider("Lines distance", 1, 30, contourLineDistance)->setName("Contour lines distance");
     gui2->getSlider("Contour lines distance")->setStripeColor(ofColor::blue);
@@ -297,12 +298,14 @@ void SandSurfaceRenderer::setupGui(){
     gui2->addHeader(":: Display ::", false);
 
     gui = new ofxDatGui( ofxDatGuiAnchor::NO_ANCHOR );
+	gui->setTheme(new ofxDatGuiThemeAqua());
     gui->setPosition(gui2->getPosition().x, gui2->getPosition().y+gui2->getHeight()+30);
     gui->addButton("Reset colors to color map file")->setName("Reset colors");
     gui->addButton("Save to color map file")->setName("Save");
     gui->addToggle("Edit color map", editColorMap)->setName("Edit");
 
     gui3 = new ofxDatGui( ofxDatGuiAnchor::NO_ANCHOR );
+	gui3->setTheme(new ofxDatGuiThemeAqua());
     gui3->addSlider("Height", -300, 300, 0)->setName("Height");
     gui3->addColorPicker("ColorPicker", ofColor::black);
     gui3->addButton("Undo color change")->setName("Undo");

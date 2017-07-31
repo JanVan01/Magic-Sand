@@ -10,6 +10,7 @@
 
 Model::Model(std::shared_ptr<KinectProjector> const& k){
     kinectProjector = k;
+    timestep = 0;
     
     
     // Retrieve variables
@@ -19,7 +20,7 @@ Model::Model(std::shared_ptr<KinectProjector> const& k){
 }
 
 bool Model::isRunning() {
-	return fires.size() > 0;
+	return fires.size() > 0 || embers.size() > 0;
 }
 
 void Model::addNewFire(){
@@ -31,7 +32,7 @@ void Model::addNewFire(){
 }
 
 void Model::addNewFire(ofVec2f fireSpawnPos) {
-    addNewFire(fireSpawnPos, 0);
+    addNewFire(fireSpawnPos, windDirection);
 }
 
 void Model::addNewFire(ofVec2f fireSpawnPos, float angle){
@@ -41,7 +42,23 @@ void Model::addNewFire(ofVec2f fireSpawnPos, float angle){
     auto f = Fire(kinectProjector, fireSpawnPos, kinectROI, angle);
     f.setup();
     fires.push_back(f);
+}
 
+void Model::addNewFireInRiskZone(){
+    if (riskZones.size() == 0){
+        calculateRiskZones();
+    }
+    ofVec2f spawnPosition;
+    ofRectangle borders = kinectProjector->getKinectROI();
+    borders.scaleFromCenter((borders.width-50)/borders.width, (borders.height-50)/borders.height);
+    int counter = 0;
+    do {
+        int index = std::rand() % riskZones.size();
+        ofVec2f spawnPosition = riskZones[index];
+        counter++;
+    } while (!borders.inside(spawnPosition)&& counter <= 100);
+    
+    addNewFire(spawnPosition);
 }
 
 bool Model::setRandomVehicleLocation(ofRectangle area, bool liveInWater, ofVec2f & location){
@@ -90,7 +107,7 @@ void Model::update(){
             burnedArea[floor(location.x)][floor(location.y)] = true;
 			burnedAreaCounter += 1;
             int rand = std::rand() % 100;
-            int spreadFactor = 10;
+            int spreadFactor = timestep < 10 ? 70 : 10;
             if (fires[i].isAlive() && rand < spreadFactor){
                 int angle = fires[i].getAngle();
                 addNewFire(location, (angle + 90)%360);
@@ -104,6 +121,7 @@ void Model::update(){
         f.applyBehaviours(windSpeed, windDirection);
         f.update();
     }
+    timestep++;
 }
 
 void Model::draw(){
@@ -116,6 +134,7 @@ void Model::draw(){
 void Model::clear(){
     fires.clear();
 	embers.clear();
+    timestep = 0;
     resetBurnedArea();
 }
 
@@ -134,13 +153,9 @@ void Model::resetBurnedArea(){
 }
 
 void Model::calculateRiskZones() {
-	for (int x = 0; x <= kinectROI.getRight(); x++) {
-		vector<bool> row;
-		for (int y = 0; y <= kinectROI.getBottom(); y++) {
-			if (x == 0 || x == kinectROI.getRight() || y == 0 || y == kinectROI.getBottom()) {
-				row.push_back(false);
-				continue;
-			}
+    riskZones.clear();
+	for (int x = kinectROI.getLeft() + 1; x < kinectROI.getRight(); x++) {
+		for (int y = kinectROI.getTop() + 1; y < kinectROI.getBottom(); y++) {
 			float cell_aspect;
 			float cell_slope;
 			//assignment of the neighborhood
@@ -169,15 +184,12 @@ void Model::calculateRiskZones() {
 			//calculation of slopes >= 10 degrees
 			cell_slope = atan(sqrt(pow(changeRateInXDirection, 2) + pow(changeRateInYDirection, 2))) * (180 / PI);
 
+
 			//identification of risk zones
-			if (cell_aspect >= 157.5 && cell_aspect <= 202.5 && cell_slope >= 10) {
-				row.push_back(true);
-			}
-			else {
-				row.push_back(false);
+			if (cell_aspect >= 157.5 && cell_aspect <= 202.5 && cell_slope >= 10 && e > 0) {
+				riskZones.push_back(ofVec2f(x, y));
 			}
 		}
-		riskZones.push_back(row);
 	}
 }
 
@@ -199,36 +211,23 @@ void Model::drawEmbers(){
 }
 
 void Model::drawRiskZones() {
-	for (int x = 0; x < riskZones.size(); x++) {
-		vector<bool> row;
-		for (int y = 0; y < riskZones[x].size(); y++) {
-			if (riskZones[x][y]) {
-				ofPushMatrix();
-				ofColor color = ofColor(255, 0, 0, 200);
-				ofPoint coord = kinectProjector->kinectCoordToProjCoord(x, y);
-				ofFill();
-
-				ofPath riskZone;
-				riskZone.rectangle(coord.x - 2, coord.y - 2, 4, 4);
-				riskZone.setFillColor(color);
-				riskZone.setStrokeWidth(0);
-				riskZone.draw();
-
-				ofNoFill();
-
-				// restore the pushed state
-				ofPopMatrix();
-			}
-			else {
-				//Keine Gefahr Zeichne Grün an Position XY
-			}
-		}
-	}
+    for (auto & r : riskZones){
+        ofPoint coord = kinectProjector->kinectCoordToProjCoord(r.x, r.y);
+        ofFill();
+        
+        ofPath riskZone;
+        riskZone.rectangle(coord.x - 2, coord.y - 2, 4, 4);
+        riskZone.setFillColor(ofColor(255, 0, 0, 200));
+        riskZone.setStrokeWidth(0);
+        riskZone.draw();
+        
+        ofNoFill();
+    }
 }
 
 string Model::getPercentageOfBurnedArea(){
 	float percentage = (burnedAreaCounter / (completeArea/7)) * 100;
-    percentage = percentage<100 ? 100 : percentage;
+  percentage = percentage > 100 ? 100 : percentage;
 	string percentStr = "Burned area: ";
 	percentStr += std::to_string(percentage);
 	percentStr += " %";
@@ -237,4 +236,8 @@ string Model::getPercentageOfBurnedArea(){
 
 int Model::getNumberOfAgents(){
 	return fires.size();
+}
+
+int Model::getTimestep() {
+	return timestep;
 }

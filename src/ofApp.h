@@ -53,6 +53,7 @@ public:
 
 	void setupGui();
 	void onButtonEvent(ofxDatGuiButtonEvent e);
+	void onToggleEvent(ofxDatGuiToggleEvent e);
 	void on2dPadEvent(ofxDatGui2dPadEvent e);
     void onSliderEvent(ofxDatGuiSliderEvent e);
 
@@ -69,17 +70,21 @@ private:
 	// FBos
 	ofFbo fboVehicles;
 	ofFbo fboInterface;
+	ofFbo fboRiskZone;
     ofVec2f firePos;
 
 	//Model Variables
 	bool runstate;
-  float windSpeed;
+    float windSpeed;
 	int amountOfAgents;
-  float windDirection;
+    float windDirection;
+	double duration;
+	std::clock_t startTime;
 
 	// GUI
 	ofxDatGui* gui;
 	ofxDatGui* gui2;
+	string time;
 
     void drawMainWindow(float x, float y, float width, float height);
     void drawWindArrow();
