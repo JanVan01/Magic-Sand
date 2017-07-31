@@ -94,65 +94,6 @@ ofPoint Vehicle::wanderEffect(){
     return velocityChange;
 }
 
-// Effect to change the speed of the agent depending on topography
-ofPoint Vehicle::hillEffect() {
-	ofPoint velocityChange, futureLocation, currentLocation;
-	float futureelevation, currentelevation;
-
-	currentLocation = location;
-	futureLocation = location + velocity * 10;
-	currentelevation = kinectProjector->elevationAtKinectCoord(currentLocation.x, currentLocation.y);
-	futureelevation = kinectProjector->elevationAtKinectCoord(futureLocation.x, futureLocation.y);
-
-
-	float currDir = ofDegToRad(angle);
-	ofPoint front = ofVec2f(cos(currDir), sin(currDir));
-	front.normalize();
-
-	if (currentelevation > futureelevation) {
-		// Inverse Direction when moving downhill,
-		front *= -1;
-		// limits the direction change in one step, so the fire does not change the direction immediately
-		ofPoint dirChange = front.limit(maxVelocityChange);
-		return dirChange;
-	}
-	if (currentelevation < futureelevation) {
-		// Increase Speed when moving uphill
-		front *= 3;
-		return front;
-	}
-	if (currentelevation == futureelevation) {
-		// no effect when moving on a plane
-		return ofPoint(0);
-	}
-}
-
-// Calculates a vector for the effect of the wind.
-ofPoint Vehicle::windEffect(float windspeed, float winddirection) {
-	ofPoint velocityChange;
-	int windForce;
-	// Sets factor for the wind speed
-	if (windspeed > 1) {
-		windForce = 1.25;
-	} else if (windspeed > 4) {
-		windForce = 1.5;
-	} else if (windspeed > 6) {
-		windForce = 1.75;
-	} else if (windspeed > 8) {
-		windForce = 2;
-	} else {
-		windForce = 0;
-	}
-
-    ofPoint desired = angleToVector(winddirection);
-	// Normalisation of the vector so that it only influences the direction
-	desired.normalize();
-	desired *= windForce;
-
-	return desired.limit(maxVelocityChange);
-}
-
-
 ofPoint Vehicle::slopesEffect(){
     ofPoint desired, velocityChange;
     
@@ -238,6 +179,64 @@ ofPoint Fire::wanderEffect(){
     velocityChange.limit(maxVelocityChange);
     
     return velocityChange;
+}
+
+// Effect to change the speed of the agent depending on topography
+ofPoint Fire::hillEffect() {
+    ofPoint velocityChange, futureLocation, currentLocation;
+    float futureelevation, currentelevation;
+    
+    currentLocation = location;
+    futureLocation = location + velocity * 10;
+    currentelevation = kinectProjector->elevationAtKinectCoord(currentLocation.x, currentLocation.y);
+    futureelevation = kinectProjector->elevationAtKinectCoord(futureLocation.x, futureLocation.y);
+    
+    
+    float currDir = ofDegToRad(angle);
+    ofPoint front = ofVec2f(cos(currDir), sin(currDir));
+    front.normalize();
+    
+    if (currentelevation > futureelevation) {
+        // Inverse Direction when moving downhill,
+        front *= -1;
+        // limits the direction change in one step, so the fire does not change the direction immediately
+        ofPoint dirChange = front.limit(maxVelocityChange);
+        return dirChange;
+    }
+    if (currentelevation < futureelevation) {
+        // Increase Speed when moving uphill
+        front *= 3;
+        return front;
+    }
+    if (currentelevation == futureelevation) {
+        // no effect when moving on a plane
+        return ofPoint(0);
+    }
+}
+
+// Calculates a vector for the effect of the wind.
+ofPoint Fire::windEffect(float windspeed, float winddirection) {
+    ofPoint velocityChange;
+    int windForce;
+    // Sets factor for the wind speed
+    if (windspeed > 1) {
+        windForce = 1.25;
+    } else if (windspeed > 4) {
+        windForce = 1.5;
+    } else if (windspeed > 6) {
+        windForce = 1.75;
+    } else if (windspeed > 8) {
+        windForce = 2;
+    } else {
+        windForce = 0;
+    }
+    
+    ofPoint desired = angleToVector(winddirection);
+    // Normalisation of the vector so that it only influences the direction
+    desired.normalize();
+    desired *= windForce;
+    
+    return desired.limit(maxVelocityChange);
 }
 
 void Fire::applyBehaviours() {

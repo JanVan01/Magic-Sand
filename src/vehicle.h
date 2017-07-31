@@ -55,8 +55,6 @@ protected:
     ofPoint angleToVector(float angle);
 
     ofPoint slopesEffect();
-	ofPoint hillEffect();
-	ofPoint windEffect(float windspeed, float winddirection);
     virtual ofPoint wanderEffect();
     void applyVelocityChange(const ofPoint & force);
     
@@ -112,6 +110,8 @@ public:
 
 private:
     ofPoint wanderEffect();
+    ofPoint hillEffect();
+    ofPoint windEffect(float windspeed, float winddirection);
 
     ofColor getFlameColor();
 
