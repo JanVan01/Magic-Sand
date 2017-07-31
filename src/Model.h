@@ -1,11 +1,3 @@
-//
-//  Model.h
-//  Magic-Sand
-//
-//  Created by Jan on 06/06/17.
-//
-//
-
 #pragma once
 
 #include "ofMain.h"
@@ -22,7 +14,6 @@ public:
     void setWindSpeed(float v);
     void setWindDirection(float d);
 
-    void addNewFire();
     void addNewFire(ofVec2f fireSpawnPos);
     void addNewFire(ofVec2f fireSpawnPos, float angle);
     void addNewFireInRiskZone();
@@ -54,8 +45,6 @@ private:
 
 	int burnedAreaCounter;
 	float completeArea;
-
-    bool setRandomVehicleLocation(ofRectangle area, bool liveInWater, ofVec2f & location);
 
 	void resetBurnedArea();
     void drawEmbers();

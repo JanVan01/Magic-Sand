@@ -1,10 +1,8 @@
-//
-//  Model.cpp
-//  Magic-Sand
-//
-//  Created by Jan on 06/06/17.
-//
-//
+/**
+ * @file	src\Model.cpp.
+ *
+ * @brief	Implements the model logic and maintains the agents.
+ */
 
 #include "Model.h"
 
@@ -19,21 +17,38 @@ Model::Model(std::shared_ptr<KinectProjector> const& k){
 
 }
 
+/**
+ * @fn	bool Model::isRunning()
+ *
+ * @brief	Query if this object is running.
+ *
+ * @return	True if running, false if not.
+ */
+
 bool Model::isRunning() {
 	return fires.size() > 0 || embers.size() > 0;
 }
 
-void Model::addNewFire(){
-    ofVec2f location;
-    setRandomVehicleLocation(kinectROI, false, location);
-    auto f = Fire(kinectProjector, location, kinectROI);
-    f.setup();
-    fires.push_back(f);
-}
+/**
+ * @fn	void Model::addNewFire(ofVec2f fireSpawnPos)
+ *
+ * @brief	Adds a new fire at the selected position.
+ *
+ * @param	fireSpawnPos	The fire spawn position.
+ */
 
 void Model::addNewFire(ofVec2f fireSpawnPos) {
     addNewFire(fireSpawnPos, windDirection);
 }
+
+/**
+ * @fn	void Model::addNewFire(ofVec2f fireSpawnPos, float angle)
+ *
+ * @brief	Adds a new fire at the selected position with a starting angle.
+ *
+ * @param	fireSpawnPos	The fire spawn position.
+ * @param	angle			The angle.
+ */
 
 void Model::addNewFire(ofVec2f fireSpawnPos, float angle){
     if (kinectProjector->elevationAtKinectCoord(fireSpawnPos.x, fireSpawnPos.y) < 0){
@@ -43,6 +58,13 @@ void Model::addNewFire(ofVec2f fireSpawnPos, float angle){
     f.setup();
     fires.push_back(f);
 }
+
+/**
+ * @fn	void Model::addNewFireInRiskZone()
+ *
+ * @brief	Adds new fire in risk zone.
+ *
+ */
 
 void Model::addNewFireInRiskZone(){
     if (riskZones.size() == 0){
@@ -61,31 +83,36 @@ void Model::addNewFireInRiskZone(){
     addNewFire(spawnPosition);
 }
 
-bool Model::setRandomVehicleLocation(ofRectangle area, bool liveInWater, ofVec2f & location){
-    bool okwater = false;
-    int count = 0;
-    int maxCount = 100;
-    while (!okwater && count < maxCount) {
-        count++;
-        float x = ofRandom(area.getLeft(),area.getRight());
-        float y = ofRandom(area.getTop(),area.getBottom());
-        bool insideWater = kinectProjector->elevationAtKinectCoord(x, y) < 0;
-        if ((insideWater && liveInWater) || (!insideWater && !liveInWater)){
-            location = ofVec2f(x, y);
-            okwater = true;
-        }
-    }
-    return okwater;
-}
+/**
+ * @fn	void Model::setWindSpeed(float v)
+ *
+ * @brief	Sets wind speed.
+ *
+ * @param	v	Wind speed.
+ */
 
-// SETTERS and GETTERS Fire Parameters:
 void Model::setWindSpeed(float v) {
 	windSpeed = v;
 }
 
+/**
+ * @fn	void Model::setWindDirection(float d)
+ *
+ * @brief	Sets wind direction.
+ *
+ * @param	d	Wind direction.
+ */
+
 void Model::setWindDirection(float d) {
 	windDirection = d;
 }
+
+/**
+ * @fn	void Model::update()
+ *
+ * @brief	Updates the model.
+ *
+ */
 
 void Model::update(){
     // kinectROI updated
@@ -124,12 +151,25 @@ void Model::update(){
     timestep++;
 }
 
+/**
+ * @fn	void Model::draw()
+ *
+ * @brief	Draws the current model state.
+ */
+
 void Model::draw(){
     drawEmbers();
     for (auto & f : fires){
         f.draw();
     }
 }
+
+/**
+ * @fn	void Model::clear()
+ *
+ * @brief	Resets the model to its blank/initial state.
+ *
+ */
 
 void Model::clear(){
     fires.clear();
@@ -151,6 +191,13 @@ void Model::resetBurnedArea(){
         burnedArea.push_back(row);
     }
 }
+
+/**
+ * @fn	void Model::calculateRiskZones()
+ *
+ * @brief	Calculates the risk zones.
+ *
+ */
 
 void Model::calculateRiskZones() {
     riskZones.clear();
@@ -210,6 +257,13 @@ void Model::drawEmbers(){
     }
 }
 
+/**
+ * @fn	void Model::drawRiskZones()
+ *
+ * @brief	Draws previously calculated risk zones.
+ *
+ */
+
 void Model::drawRiskZones() {
     for (auto & r : riskZones){
         ofPoint coord = kinectProjector->kinectCoordToProjCoord(r.x, r.y);
@@ -225,6 +279,14 @@ void Model::drawRiskZones() {
     }
 }
 
+/**
+ * @fn	string Model::getPercentageOfBurnedArea()
+ *
+ * @brief	Gets percentage of burned area.
+ *
+ * @return	The percentage of burned area.
+ */
+
 string Model::getPercentageOfBurnedArea(){
 	float percentage = (burnedAreaCounter / (completeArea/7)) * 100;
   percentage = percentage > 100 ? 100 : percentage;
@@ -234,9 +296,25 @@ string Model::getPercentageOfBurnedArea(){
 	return percentStr;
 }
 
+/**
+ * @fn	int Model::getNumberOfAgents()
+ *
+ * @brief	Gets number of alive agents in the model.
+ *
+ * @return	The number of alive agents.
+ */
+
 int Model::getNumberOfAgents(){
 	return fires.size();
 }
+
+/**
+ * @fn	int Model::getTimestep()
+ *
+ * @brief	Gets the current timestep model.
+ *
+ * @return	The timestep of the model.
+ */
 
 int Model::getTimestep() {
 	return timestep;
